@@ -1,0 +1,110 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f5f5f5;
+}
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+body > .container {
+  padding: 60px 15px 0;
+}
+.container .text-muted {
+  margin: 20px 0;
+}
+.page-header{
+  margin-top: 10px;
+}
+.page-header > h1{
+  font-size: 26px;
+  font-weight: bold;
+}
+.lead{
+  font-size: 16px;
+}
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+code {
+  font-size: 80%;
+}
+
+
+/*
+	Max width before this PARTICULAR table gets nasty. This query
+	will take effect for any screen smaller than 760px and also
+	iPads specifically.
+	*/
+@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {
+
+  /* Force table to not be like tables anymore */
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  /* Hide table headers (but not display: none;, for accessibility) */
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  tr {
+    margin: 0 0 1rem 0;
+  }
+
+  tr:nth-child(odd) {
+    background-color: #d4d4d4;
+  }
+
+  td {
+    /* Behave  like a "row" */
+    border: none;
+    border-bottom: 1px solid #f8f8f8;
+    position: relative;
+    padding-left: 20%;
+
+  }
+
+  td:before {
+    top: 0;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: bold;
+  }
+  /*
+    Label the data. You could also use a data-* attribute and
+    content for this. That way "bloats" the HTML, this way means
+    you need to keep HTML and CSS in sync. Lea Verou has a
+    clever way to handle with text-shadow.
+  */
+  td:before { content: attr(data-label); }
+}
+.bg-danger{
+
+  padding: 15px;
+}
+
+.refresh-list{
+ margin-top: 25px;
+}
