@@ -54,7 +54,7 @@
         <tbody role="rowgroup">
         <?php foreach ($list as $key => $row) { ?>
             <tr role="row">
-                <td role="cell" data-label="#"><?=$key;?></th>
+                <td role="cell" data-label="#"><?=$key;?></td>
                 <td role="cell" data-label="Name"><?=$row['name'];?></td>
                 <td role="cell" data-label="Phone"><?=$row['phone'];?></td>
                 <td role="cell" data-label="Email"><?=$row['email'];?></td>
@@ -67,8 +67,6 @@
                     <a href="remove/<?=$row['id'];?>" class="btn btn-default btn-xs btn-danger">
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Remove
                     </a>
-                    <!--<a href="edit/<?/*=$row['id'];*/?>" class="btn btn-default btn-xs btn-primary">Edit</a>-->
-                    <!--<a href="remove/<?/*=$row['id'];*/?>" class="btn btn-default btn-xs btn-danger">Remove</a>-->
                 </td>
             </tr>
         <?php } ?>
