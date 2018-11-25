@@ -11,63 +11,61 @@ class Mind {
 
     /*
      * The variable of the database connection.
-     *
      * */
     private $conn;
 
     /*
-     * It is the variable that is responsible
-     * for handling http requests.
-     * */
-    public $post;
-
-    /*
      * Database server address variable
      * */
-    private $host        = 'localhost';
+    private $host        =  'localhost';
 
     /*
      * Database name variable
      * */
-    private $dbname      = 'mydb';
+    private $dbname      =  'mydb';
 
     /*
      * Database username variable
      * */
-    private $username    = 'root';
+    private $username    =  'root';
 
     /*
      * Database user's password variable
      * */
-    private $password    = '';
+    private $password    =  '';
 
     /*
      * It is the variable in which session
      * settings are kept.
      * */
-    private $sessset    = array(
+    private $sessset     =  array(
         'path'              =>  './session/',
         'path_status'       =>  false,
         'status_session'    =>  true
     );
 
     /*
-     * This variable moves the path of the
-     * project directory.
+     * It is the variable that is responsible for
+     * handling http requests.
      * */
-    public $baseurl;
+    public  $post;
 
     /*
-     * The time zone variable that
-     * should be valid if the setting
-     * is not defined
+     * This variable moves the path of the project
+     * directory.
      * */
-    public $timezone    = 'Europe/Istanbul';
+    public  $baseurl;
+
+    /*
+     * The time zone variable that should be valid
+     * if the setting is not defined
+     * */
+    public  $timezone    =  'Europe/Istanbul';
 
     /*
      * Default language
      * */
-    public $language    = 'tr';
+    public  $language    =  'tr';
 
     /*
      * Function where dependencies
@@ -76,43 +74,39 @@ class Mind {
     public function __construct(){
 
         /*
-         * It is shown if there is an error.
-         * */
-        error_reporting(-1);
-
-
-
-        /*
-         * If there is no active session,
-         * the function to start the session
-         * is running
-         * */
-        $this->session_check();
-
-        /*
-         * The function that provides the
-         * database connection is executed
-         * */
-        $this->connection();
-
-        /*
-         * The function that evaluates $_GET,
-         * $_POST, $FILES requests is executed.
-         * */
-        $this->request();
-
-        /*
-         * The project language is interpreted
-         * in a universal encoding.
+         * The project language is interpreted in a
+         * universal encoding.
          * */
         header('Content-Type: text/html; charset=utf-8');
 
         /*
-         * If the time zone variable is not empty,
-         * we make sure that it has a valid time
-         * zone. If it is empty, we tell it to use
-         * the time zone defined in the
-         * $this->timezone variable.
+         * It is shown if there is an error.
+         * */
+        error_reporting(-1);
+
+        /*
+         * If there is no active session, the function
+         * to start the session is running
+         * */
+        $this->session_check();
+
+        /*
+         * The function that provides the database
+         * connection is executed
+         * */
+        $this->connection();
+
+        /*
+         * The function that evaluates $_GET, $_POST,
+         * $FILES requests is executed.
+         * */
+        $this->request();
+
+        /*
+         * If the time zone variable is not empty, we
+         * make sure that it has a valid time zone. If
+         * it is empty, we tell it to use the time zone
+         * defined in the $this->timezone variable.
          * */
         if(!empty($_SESSION['timezone'])){
             if(!in_array($_SESSION['timezone'], $this->timezones())){
@@ -123,8 +117,8 @@ class Mind {
         }
 
         /*
-         * We apply the specified time zone option
-         * to the project.
+         * We apply the specified time zone option to
+         * the project.
          * */
         date_default_timezone_set($_SESSION['timezone']);
 
@@ -133,68 +127,6 @@ class Mind {
          * */
         $this->baseurl = dirname($_SERVER['SCRIPT_NAME']).'/';
 
-    }
-
-    /*
-     * $_GET is a function that interprets $_POST,
-     * $FILES requests.
-     * */
-    public function request(){
-
-        /*
-         * $_GET, $_POST, $FILES requests are checked
-         * for presence.
-         * */
-        if(isset($_POST) OR isset($_GET) OR isset($_FILES)){
-
-            /*
-             * All requests are put into the same cluster and
-             * processed with the help of the foreach loop.
-             * */
-            foreach (array_merge($_POST, $_GET, $_FILES) as $name => $value) {
-
-                /*
-                 * If the request carries a parameter such as
-                 * multiple files or multiple selections in an
-                 * array format, the request is processed to
-                 * become available.
-                 * */
-                if(is_array($value)){
-                    foreach($value as $key => $all ){
-
-                        /*
-                         * If the request carries a large number of parameters,
-                         * an arrangement is made for practical access to the
-                         * parameters.
-                         * */
-                        if(is_array($all)){
-                            foreach($all as $i => $val ){
-
-                                /*
-                                 * Multiple request parameters are controlled by
-                                 * the filter method.
-                                 * */
-                                $this->post[$name][$i][$key] = $this->filter($val);
-                            }
-                        } else {
-
-                            /*
-                             * The request that carries the single parameter
-                             * is controlled by the filter method.
-                             * */
-                            $this->post[$name][$key] = $this->filter($all);
-                        }
-                    }
-                } else {
-
-                    /*
-                     * If the request parameter is not an array, it is
-                     * controlled by the filter method.
-                     * */
-                    $this->post[$name] = $this->filter($value);
-                }
-            }
-        }
     }
 
     /*
@@ -227,14 +159,18 @@ class Mind {
              * If the database variable is not empty, the process starts.
              * */
             if(!empty($this->dbname)){
+
                 /*
-                 * The existence of the database is queried. If available,
-                 * the database is created and selected.
+                 * The existence of the database is queried. If the database
+                 * does not exist, the database is created.
                  * */
                 if(!$this->is_database($this->dbname)){
                     $this->createdb($this->dbname);
                 }
 
+                /*
+                 * The database is selected.
+                 * */
                 mysqli_select_db($this->conn, $this->dbname);
             }
 
@@ -251,10 +187,12 @@ class Mind {
      * with the help of this function.
      * --------------------------
      * string                   $sql
-     * boolean, array           return
+     * array                    return
      * --------------------------
      * */
     public function querySQL($sql){
+
+        $query = array();
 
         /*
          * The mysqli_query query is executed and the
@@ -267,140 +205,7 @@ class Mind {
          * from the mysqli_query query is returned with the
          * help of the $query variable.
          * */
-        if(!empty($query)){
-            return $query;
-        } else {
-            return false;
-        }
-    }
-
-    /*
-     * It is a function used to insert data that is sent to the
-     * database table in array format.
-     * --------------------------
-     * string                   $tblname
-     * array                    $arr
-     * --------------------------
-     * */
-    public function insert($tblname, $arr){
-
-        /*
-         * Columns are converted to appropriate
-         * syntax.
-         * */
-        $column = implode(',', array_keys($arr));
-
-        /*
-         * Data assigned to columns are converted to
-         * appropriate syntax.
-         * */
-        $values = implode('\',\'', array_values($arr));
-
-        /*
-         * Column and Data are converted to the appropriate
-         * syntax for the sql query and assigned to the $sql
-         * variable.
-         * */
-        $sql = 'INSERT INTO '.$tblname.'('.$column.') VALUES (\''.$values.'\')';
-
-        /*
-         * By executing the prepared sql query.
-         * */
-        return $this->querySQL($sql);
-    }
-
-    /*
-     * It is a function to update a record in the database
-     * table with data that is sent as an array.
-     * --------------------------
-     * string                   $tblname
-     * array                    $arr
-     * int, string              $id
-     * --------------------------
-     * */
-    public function update($tblname, $arr, $id){
-
-        /*
-         * The column name to which the auto_increment
-         * property of the database table is assigned is
-         * determined. Because in this column $id value
-         * will be queried.
-         * */
-        $special = $this->autoincrement($tblname);
-
-        /*
-         * The array containing the new data is processed
-         * with the foreach loop.
-         * */
-        foreach ($arr as $name => $value) {
-
-            /*
-             * New data being converted to an appropriate
-             * syntax for an update query.
-             * */
-            $field = $name.'=\''.$value.'\'';
-
-            /*
-             * The data is inserted into the sql query and
-             * assigned to the $sql variable.
-             * */
-            $sql = 'UPDATE '.$tblname.' SET '.$field.' WHERE '.$special.'='.$id;
-
-            /*
-             * By executing the prepared sql query.
-             * */
-            $this->querySQL($sql);
-
-        }
-    }
-
-    /*
-     * A function used to delete records in the database
-     * table. It is possible to send single or more
-     * integers.
-     * --------------------------
-     * string                   $tblname
-     * int, string, array       $id
-     * --------------------------
-     * */
-    public function delete($tblname, $id){
-
-        /*
-         * The column name to which the auto_increment
-         * property of the database table is assigned is
-         * determined. Because in this column $id value
-         * will be queried.
-         * */
-        $special = $this->autoincrement($tblname);
-
-        /*
-         * The $id variable is placed in the foreach loop
-         * if it has an array property.
-         * */
-        if(is_array($id)){
-            foreach ($id as $key => $value) {
-
-                /*
-                 * Each array element is deleted
-                 * individually.
-                 * */
-                $this->delete($tblname, $value);
-
-            }
-        } else {
-
-            /*
-             * The data is inserted into the sql query and
-             * assigned to the $sql variable.
-             * */
-            $sql = 'DELETE FROM '.$tblname.' WHERE '.$special.'='.$id;
-
-
-            /*
-             * By executing the prepared sql query.
-             * */
-            $this->querySQL($sql);
-        }
+        return $query;
     }
 
     /*
@@ -411,71 +216,31 @@ class Mind {
      * --------------------------
      * */
     public function createdb($dbname){
+        $dbnames = array();
 
-        /*
-         * The $dbname variable is placed in the foreach
-         * loop if it has an array property.
-         * */
         if(is_array($dbname)){
             foreach ($dbname as $key => $value) {
-
-                /*
-                 * The database is created for each array element.
-                 * */
-                $this->createdb($value);
-
+                if(!$this->is_database($value)){
+                    $dbnames[] = $value;
+                } else {
+                    return false;
+                }
             }
         } else {
+            if(!$this->is_database($dbname)){
+                $dbnames[] = $dbname;
+            } else {
+                return false;
+            }
+        }
 
-            /*
-             * The data is inserted into the sql query and
-             * assigned to the $sql variable.
-             * */
+        foreach ($dbnames as $dbname) {
+
             $sql = 'CREATE DATABASE '.$dbname;
-
-
-            /*
-             * By executing the prepared sql query.
-             * */
             $this->querySQL($sql);
+
         }
-    }
-
-    /*
-     * This function is used to delete database.
-     * --------------------------
-     * string, array            $dbname
-     * boolean                  return
-     * --------------------------
-     * */
-    public function deletedb($dbname){
-
-        /*
-         * The $dbname variable is placed in the foreach
-         * loop if it has an array property.
-         * */
-        if(is_array($dbname)){
-            foreach ($dbname as $key => $value) {
-
-                /*
-                 * The database is deleted for each array element.
-                 * */
-                $this->deletedb($value);
-
-            }
-        } else {
-
-            /*
-             * The data is inserted into the sql query and
-             * assigned to the $sql variable.
-             * */
-            $sql = 'DROP DATABASE '.$dbname;
-
-            /*
-             * By executing the prepared sql query.
-             * */
-            $this->querySQL($sql);
-        }
+        return true;
     }
 
     /*
@@ -489,218 +254,152 @@ class Mind {
      * */
     public function createtable($tblname, $arr){
 
-        /*
-         * Default type name
-         * */
+        if($this->is_table($tblname)){
+            return false;
+        }
+
         $typeDefault = 'small';
 
-        /*
-         * Permitted feature types
-         * */
-        $typeLibrary = array('small'=>'TEXT', 'medium'=>'MEDIUMTEXT', 'large'=>'LONGTEXT');
+        $typeLibrary = array(
+            'small'         =>  'TEXT',
+            'medium'        =>  'MEDIUMTEXT',
+            'large'         =>  'LONGTEXT'
+        );
 
-        /*
-         * If the table name is in accordance with the rules
-         * and if it was previously not created,
-         * */
-        if(is_array($arr) AND preg_match('/^[A-Za-z0-9_]+$/', $tblname) OR !$this->is_table($tblname)){
+        if(is_array($arr) AND preg_match('/^[A-Za-z0-9_]+$/', $tblname)){
 
-            /*
-             * Syntax code start
-             * */
             $sql = 'CREATE TABLE '.$tblname.'( ';
 
-            /*
-             * Column information begins processing.
-             * */
             foreach ($arr as $item) {
 
-                /*
-                 * The column name and property are parsed.
-                 * */
                 if(strstr($item, ':')){
 
-                    /*
-                     * The number of separable elements is collected.
-                     * */
                     $symbolsTotal = count(explode(':', $item));
 
-                    /*
-                     * Only parameters without 2 elements are considered
-                     * invalid.
-                     * */
                     if($symbolsTotal != 2){
                         return false;
                     }
 
-                    /*
-                     * Parameters with only two elements are converted to
-                     * variables named column name and type.
-                     * */
                     list($column, $type) = explode(':', $item);
 
-                    /*
-                     * If the column name is not included in the allowed
-                     * types and the increments have the secondary parameter,
-                     * the auto_increment syntax is being generated.
-                     * */
                     if(!array_key_exists($type, $typeLibrary) AND $type == 'increments'){
                         $xsql[] = $column.' INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY';
                     }
 
-                    /*
-                     * If the type is one of the allowed types and the type is
-                     * not increments, the normal column syntax is generated.
-                     * */
                     if(array_key_exists($type, $typeLibrary) AND $type != 'increments'){
                         $xsql[] = $column.' '.$typeLibrary[$type].' NULL';
                     }
                 } else {
 
-                    /*
-                     * The syntax is created for the column name that is not
-                     * type specified.
-                     * */
                     $xsql[] = $item.' '.$typeLibrary[$typeDefault].' NULL';
                 }
             }
 
-            /*
-             * By combining the syntax, the query is prepared.
-             * */
             $sql .= implode(',', $xsql).')';
 
-            /*
-             * The query is executed.
-             * */
             $this->querySQL($sql);
 
-        } else {
-
-            /*
-             * The request for inappropriate table rendering
-             * is met with a false response.
-             * */
-            return false;
+            return true;
         }
+
+        return false;
+
     }
 
+    public function createcolumn($tblname, $arr){
+
+        if(!$this->is_table($tblname)){
+            return false;
+        }
+
+        $typeDefault = 'small';
+
+        $typeLibrary = array(
+            'small'         =>  'TEXT',
+            'medium'        =>  'MEDIUMTEXT',
+            'large'         =>  'LONGTEXT'
+        );
+
+        if(is_array($arr) AND preg_match('/^[A-Za-z0-9_]+$/', $tblname)){
+
+            $sql = 'ALTER TABLE '.$tblname.' ';
+
+            foreach ($arr as $item) {
+
+                if(strstr($item, ':')){
+
+                    $symbolsTotal = count(explode(':', $item));
+
+                    if($symbolsTotal != 2){
+                        return false;
+                    }
+
+                    list($column, $type) = explode(':', $item);
+
+                    if($this->is_column($tblname, $column)){
+                        return false;
+                    }
+
+                    if(!array_key_exists($type, $typeLibrary) AND $type == 'increments'){
+
+                        $ainc = $this->autoincrement($tblname);
+
+                        if(!empty($ainc)){
+                            return false;
+                        }
+
+                        $xsql[] = 'ADD COLUMN '.$column.' INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY FIRST';
+                    }
+
+                    if(array_key_exists($type, $typeLibrary) AND $type != 'increments'){
+                        $xsql[] = 'ADD COLUMN '.$column.' '.$typeLibrary[$type].' NULL';
+                    }
+                } else {
+
+                    $xsql[] = 'ADD COLUMN '.$item.' '.$typeLibrary[$typeDefault].' NULL';
+                }
+            }
+
+            $sql .= implode(',', $xsql);
+
+            $this->querySQL($sql);
+
+            return true;
+        }
+
+        return false;
+
+    }
+
+
     /*
-     * A function used to clear the contents of database tables
-     * or table columns. If the names of columns or columns are
-     * not specified, deletes the table or tables.
-     *
-     * If the column or columns are to be cleared, the $column
-     * variable may be an array or string, but the $tblname
-     * variable must not be an array.
-     *
-     * If table or tables are to be cleared, the $tblname variable
-     * may be an array or string, but the $column variable must be
-     * left blank.
-     *
+     * This function is used to delete database.
      * --------------------------
-     * string, array            $tblname
-     * string, array, null      $column
+     * string, array            $dbname
+     * boolean                  return
      * --------------------------
      * */
-    public function cleartable($tblname, $column=null){
+    public function deletedb($dbname){
+        $dbnames = array();
 
-        /*
-         * If the $column variable is not empty, the request
-         * is processed to delete the column or columns of
-         * the table.
-         * */
-        if(!empty($column)){
-
-            /*
-             * If the $column variable contains more than one
-             * column, they are all cleaned one by one.
-             * */
-            if(is_array($column)){
-                foreach ($column as $key => $value) {
-
-                    /*
-                     * It is desirable to clean the column
-                     * within the array.
-                     * */
-                    $this->cleartable($tblname, $value);
-
+        if(is_array($dbname)){
+            foreach ($dbname as $key => $value) {
+                if(!$this->is_database($value)){
+                    return false;
                 }
-            } else {
-
-                /*
-                 * The column name to which the auto_increment
-                 * property of the database table is assigned is
-                 * determined. Because in this column $id value
-                 * will be queried.
-                 * */
-                $id = $this->autoincrement($tblname);
-
-                /*
-                 * If the $column variable is not an array and
-                 * has a column name, the columns of the table
-                 * name specified in the $tblname variable are
-                 * returned.
-                 * */
-                $totalRow = $this->get($tblname);
-
-                /*
-                 * Columns in the table are taken into the
-                 * foreach loop.
-                 * */
-                foreach ($totalRow as $row) {
-
-                    /*
-                     * Column content is specified as empty.
-                     * */
-                    $arr = array(
-                        $column => ''
-                    );
-
-                    /*
-                     * And this change is applied.
-                     * */
-                    $this->update($tblname, $arr, $row[$id]);
-
-                }
+                $dbnames[] = $value;
             }
         } else {
-
-            /*
-             * If the $column variable is empty, the type of the
-             * $tblname variable is determined, assuming that the
-             * request is only related to the entire table.
-             * */
-            if(is_array($tblname)){
-
-                /*
-                 * If $tblname is a string, table or tables are
-                 * processed with the foreach loop.
-                 * */
-                foreach ($tblname as $key => $value) {
-
-                    /*
-                     * The table is cleared, including the
-                     * $auto_increment parameter.
-                     * */
-                    $this->cleartable($value);
-
-                }
-            } else {
-
-                /*
-                 * The data is inserted into the sql query and
-                 * assigned to the $sql variable.
-                 * */
-                $sql = 'TRUNCATE '.$tblname;
-
-                /*
-                 * By executing the prepared sql query, the
-                 * returned response is returned.
-                 * */
-                $this->querySQL($sql);
+            if(!$this->is_database($dbname)){
+                return false;
             }
+            $dbnames[] = $dbname;
         }
+        foreach ($dbnames as $dbname) {
+            $sql = 'DROP DATABASE '.$dbname;
+            $this->querySQL($sql);
+        }
+        return true;
     }
 
     /*
@@ -708,38 +407,394 @@ class Mind {
      * tables.
      * --------------------------
      * string, array            $tblname
+     * boolean                  return
      * --------------------------
      * */
     public function deletetable($tblname){
+        $tblnames = array();
 
-        /*
-         * The $tblname variable is placed in the foreach
-         * loop if it has an array property.
-         * */
         if(is_array($tblname)){
             foreach ($tblname as $key => $value) {
+                if(!$this->is_table($value)){
+                    return false;
+                }
+                $tblnames[] = $value;
+            }
+        } else {
+            if(!$this->is_table($tblname)){
+                return false;
+            }
+            $tblnames[] = $tblname;
+        }
+        foreach ($tblnames as $tblname) {
+            $sql = 'DROP TABLE '.$tblname;
+            $this->querySQL($sql);
+        }
+        return true;
+    }
 
-                /*
-                 * The database table is deleted for each array element.
-                 * */
-                $this->deletetable($value);
+    /*
+     * This function is used to delete column..
+     * --------------------------
+     * string                   $tblname
+     * string, array            $column
+     * boolean                  return
+     * --------------------------
+     * */
+    public function deletecolumn($tblname, $column){
+        $columns = array();
 
+        if(is_array($column)){
+            foreach ($column as $key => $value) {
+                if(!$this->is_column($tblname, $value)){
+                    return false;
+                }
+                $columns[] = $value;
+            }
+        } else {
+            if(!$this->is_column($tblname, $column)){
+                return false;
+            }
+            $columns[] = $column;
+        }
+        foreach ($columns as $column) {
+            $sql = 'ALTER TABLE '.$tblname.' DROP COLUMN '.$column;
+            $this->querySQL($sql);
+        }
+        return true;
+    }
+
+    /*
+     * This function is used to clear database.
+     * --------------------------
+     * string, array            $dbname
+     * boolean                  return
+     * --------------------------
+     * */
+    public function cleardb($dbname){
+        $dbnames = array();
+
+        if(is_array($dbname)){
+            foreach ($dbname as $key => $value) {
+                if(!$this->is_database($value)){
+                    return false;
+                }
+                $dbnames[] = $value;
             }
         } else {
 
-            /*
-             * The data is inserted into the sql query and
-             * assigned to the $sql variable.
-             * */
-            $sql = 'DROP TABLE '.$tblname;
+            if(!$this->is_database($dbname)){
+                return false;
+            }
+            $dbnames[] = $dbname;
+        }
+        foreach ($dbnames as $dbname) {
+            $sql    = 'SHOW TABLES FROM '.$dbname;
+            $query  = $this->querySQL($sql);
+            while($cRow = mysqli_fetch_array($query)){
+                mysqli_select_db($this->conn, $dbname);
+                $this->cleartable($cRow[0]);
+            }
+            mysqli_select_db($this->conn, $this->dbname);
+        }
+        return true;
+    }
 
-            /*
-             * By executing the prepared sql query, the
-             * returned response is returned.
-             * */
+    /*
+     * This function is used to clear table.
+     * --------------------------
+     * string, array            $tblname
+     * boolean                  return
+     * --------------------------
+     * */
+    public function cleartable($tblname){
+        $tblnames = array();
+
+        if(is_array($tblname)){
+            foreach ($tblname as $value) {
+
+                if(!$this->is_table($value)){
+                    return false;
+                }
+                $tblnames[] = $value;
+            }
+        } else {
+            if(!$this->is_table($tblname)){
+                return false;
+            }
+            $tblnames[] = $tblname;
+        }
+        foreach ($tblnames as $tblname) {
+            $sql = 'TRUNCATE '.$tblname;
             $this->querySQL($sql);
         }
+        return true;
     }
+
+    /*
+     * This function is used to clear table.
+     * --------------------------
+     * string                   $tblname
+     * string, array            $column
+     * boolean                  return
+     * --------------------------
+     * */
+    public function clearcolumn($tblname, $column){
+        $columns = array();
+
+        if(!$this->is_table($tblname)){
+            return false;
+        }
+
+        if(is_array($column)){
+            foreach ($column as $key => $value) {
+                if(!$this->is_column($tblname, $value)){
+                    return false;
+                }
+                $columns[] = $value;
+            }
+        } else {
+            if(!$this->is_column($tblname, $column)){
+                return false;
+            }
+            $columns[] = $column;
+        }
+
+        foreach ($columns as $column) {
+
+            $id   = $this->autoincrement($tblname);
+            $data = $this->get($tblname);
+
+            foreach ($data as $row) {
+                $arr = array(
+                    $column => ''
+                );
+                $this->update($tblname, $arr, $row[$id]);
+            }
+        }
+
+        return true;
+
+    }
+
+    /*
+     * It is a function used to insert data that is sent to the
+     * database table in array format.
+     * --------------------------
+     * string                   $tblname
+     * array                    $arr
+     * boolean                  return
+     * --------------------------
+     * */
+    public function insert($tblname, $arr){
+
+        if(!$this->is_table($tblname)){
+            return false;
+        }
+
+        if(!is_array($arr)){
+            return false;
+        }
+
+        /*
+         * Retrieving columns
+         * */
+        $columns = array_keys($arr);
+
+
+        foreach ($columns as $column){
+
+            /*
+             * Negative response is returned if the column does not
+             * exist in the table.
+             * */
+            if(!$this->is_column($tblname, $column)){
+                return false;
+            }
+        }
+
+        /*
+        * Columns are converted to appropriate
+        * syntax.
+        * */
+        $column = implode(',', $columns);
+
+        /*
+        * Data assigned to columns are converted to
+        * appropriate syntax.
+        * */
+        $values = '\''.implode('\',\'', array_values($arr)).'\'';
+
+        /*
+        * Column and Data are converted to the appropriate
+        * syntax for the sql query and assigned to the $sql
+        * variable.
+        * */
+        $sql = 'INSERT INTO '.$tblname.'('.$column.') VALUES ('.$values.')';
+
+        /*
+        * By executing the prepared sql query.
+        * */
+        $this->querySQL($sql);
+
+        return true;
+    }
+
+    /*
+     * It is a function to update a record in the database
+     * table with data that is sent as an array.
+     * --------------------------
+     * string                   $tblname
+     * array                    $arr
+     * int, string              $id
+     * boolean                  return
+     * --------------------------
+     * */
+    public function update($tblname, $arr, $id, $special=null){
+
+        /*
+         * Negative response is given if there is no table.
+         * */
+        if(!$this->is_table($tblname)){
+          return false;
+        }
+
+        /*
+         * If no special column name is specified, it starts
+         * analysis.
+         * */
+        if(empty($special)){
+
+            /*
+            * The column name to which the auto_increment
+            * property of the database table is assigned is
+            * determined. Because in this column $id value
+            * will be queried.
+            * */
+            $special = $this->autoincrement($tblname);
+
+            /*
+             * If there is no column with incremental feature,
+             * negative response is given.
+             * */
+            if(empty($special)){
+                return false;
+            }
+
+        }
+
+        /*
+         * If there are no records requested to be updated,
+         * the negative response is returned.
+         * */
+        if(!$this->do_have($tblname, $id, $special)){
+            return false;
+        }
+
+        /*
+        * The array containing the new data is processed
+        * with the foreach loop.
+        * */
+        foreach ($arr as $name => $value) {
+
+            /*
+             * Negative response is given if there is no
+             * column.
+             * */
+            if(!$this->is_column($tblname, $name)){
+              return false;
+            }
+
+            /*
+            * New data being converted to an appropriate
+            * syntax for an update query.
+            * */
+            $field = $name.'=\''.$value.'\'';
+
+            /*
+             * The old data is converted to an appropriate
+             * syntax for an update query.
+             * */
+            $newfield = $special.'=\''.$id.'\'';
+
+            /*
+            * The data is inserted into the sql query and
+            * assigned to the $sql variable.
+            * */
+            $sql = 'UPDATE '.$tblname.' SET '.$field.' WHERE '.$newfield;
+
+            /*
+            * By executing the prepared sql query.
+            * */
+            $this->querySQL($sql);
+
+        }
+        return true;
+    }
+
+    /*
+     * A function used to delete records in the database
+     * table. It is possible to send single or more
+     * integers.
+     * --------------------------
+     * string                   $tblname
+     * int, string, array       $id
+     * boolean                  return
+     * --------------------------
+     * */
+    public function delete($tblname, $id, $special=null){
+        $ids = array();
+
+        if(!$this->is_table($tblname)){
+            return false;
+        }
+
+        /*
+         * If no special column name is specified, it starts
+         * analysis.
+         * */
+        if(empty($special)){
+
+            /*
+            * The column name to which the auto_increment
+            * property of the database table is assigned is
+            * determined. Because in this column $id value
+            * will be queried.
+            * */
+            $special = $this->autoincrement($tblname);
+
+            /*
+             * If there is no column with incremental feature,
+             * negative response is given.
+             * */
+            if(empty($special)){
+                return false;
+            }
+
+        }
+
+        if(is_array($id)){
+          foreach ($id as $key => $value) {
+              if(!$this->do_have($tblname, $value, $special)){
+                return false;
+              }
+              $ids[] = $value;
+          }
+        } else {
+          if(!$this->do_have($tblname, $id, $special)){
+            return false;
+          }
+          $ids[] = $id;
+        }
+
+        foreach ($ids as $id) {
+          $sql = 'DELETE FROM '.$tblname.' WHERE '.$special.'='.$id;
+          $this->querySQL($sql);
+        }
+        return true;
+    }
+
+
 
     /*
      * This function is used to read data in a simple
@@ -1048,88 +1103,153 @@ class Mind {
     }
 
     /*
-    * This function is used to retrieve records that have
-    * containers specified from the specified URL or content.
-    * --------------------------
-    * string                   $left
-    * string                   $right
-    * null, array              return
-    * --------------------------
-    * */
-    public function get_contents($left, $right, $url){
+     * It is the function to query the existence of the
+     * data in the database.
+     * --------------------------
+     * string                   $tblname
+     * string                   $str
+     * string, null             $column
+     * boolean                  return
+     * --------------------------
+     * */
+    public function do_have($tblname, $str, $column=null){
 
         /*
-         * The operation run time is made unlimited.
+         * If the table name and the searched data variables
+         * are not empty, the query operation starts.
          * */
-        set_time_limit(0);
-
-        /*
-         * The result variable default is defined as null.
-         * */
-        $result = '';
-
-        /*
-         * If the URL is specified, the source code of the
-         * link page is retrieved and assigned to the data
-         * variable.
-         * */
-        if($this->is_url($url)) {
+        if(!empty($tblname) AND !empty($str)){
 
             /*
-             * Connection is provided without using SSL.
+             * The keyword parameter is added to the syntax.
              * */
-            $arrContextOptions = stream_context_create(array(
-                'ssl' => array(
-                    'verify_peer' 		=> false,
-                    'verify_peer_name' 	=> false,
+            $arr = array(
+                'search'=> array(
+                    'keyword' => $this->filter($str)
                 )
-            ));
+            );
 
             /*
-             * If the URL does not have the proper syntax for the
-             * connection and the second parameter is correctly
-             * specified, the url syntax is corrected and the
-             * connection is established.
+             * If the column value is not empty, the column name
+             * is added to the query syntax, especially for
+             * questioning in that column.
              * */
-            $data = file_get_contents($this->is_url($url, true), false, $arrContextOptions);
+            if(!empty($column)){
+                $arr = array(
+                    'search' =>array(
+                        'keyword' => $this->filter($str),
+                        'column' => $this->filter($column)
+                    )
+                );
+            }
+
+            /*
+             * The query results in returning results.
+             * */
+            $data = $this->get($tblname, $arr);
+
+            /*
+             * If the returned result is not empty, the
+             * response will be positive, and if it is
+             * empty, the response will be negative.
+             * */
+
+            if(!empty($data)){
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /*
+     * A function that returns the auto_increment value
+     * to be allocated for the record to be added to
+     * the database table.
+     * --------------------------
+     * string             $tblname
+     * string             return
+     * --------------------------
+     * */
+    public function lastid($tblname){
+
+        /*
+         * In the database table, the column name with the auto-increment
+         * property is defined in the column name field to be displayed in
+         * the query syntax.
+         * */
+        $arr = array(
+            'column'  =>  $this->autoincrement($tblname)
+        );
+
+        /*
+         * The numbers defined by auto_increment are obtained.
+         * */
+        $q = $this->get($tblname, $arr);
+
+        /*
+         * If there is no record, the entire table is deleted and the
+         * auto_increment value is also reset.
+         * */
+        if(empty($q)){
+
+            /*
+             * Resetting table.
+             * */
+            $this->cleartable($tblname);
+
+            /*
+             * Because the new element of the empty table is 1, 1
+             * is returned.
+             * */
+            $id = 1;
+            return $id;
+
         } else {
 
             /*
-             * If the specified value is not a url, it is assigned
-             * to the data variable because it is a content.
+             * If the result of the query is not empty, the largest
+             * of all numbers is collected with 1, and the result is
+             * presented in response.
              * */
-            $data = $url;
-        }
-
-        /*
-         * Some gaps are removed for easier processing of
-         * the resulting content.
-         * */
-        $content = str_replace(array("\n", "\r", "\t"), '', $data);
-
-        /*
-         * Left and Right containers are searched.
-         * */
-        if(preg_match_all('/'.preg_quote($left, '/').'(.*?)'.preg_quote($right, '/').'/i', $content, $result)){
-
-            /*
-             * If a record is detected in the specified range.
-             * */
-            if(count($result)>0){
-
-                /*
-                 * The result is returned by ignoring the first record.
-                 * */
-                return array_unique($result[1]);
-
-            } else {
-
-                /*
-                 * If there is no result, a blank answer is given.
-                 * */
-                return $result;
+            foreach ($q as $id) {
+                $d[] = $id;
             }
+            return implode('', max($d))+1;
+
         }
+    }
+
+    /*
+     * In the database table, the auto increment property is the
+     * function to find the defined column name.
+     * --------------------------
+     * string             $tblname
+     * string             return
+     * --------------------------
+     * */
+    public function autoincrement($tblname){
+
+        /*
+         * Syntax that finds the name of the column with the ability
+         * to automatically increase.
+         * */
+        $sql = "show columns from ".$tblname." where extra like '%auto_increment%'";
+
+        /*
+         * Running query.
+         * */
+        $query = $this->querySQL($sql);
+
+        /*
+         * The result is assigned to the variable.
+         * */
+        $row = $query->fetch_assoc();
+
+        /*
+         * The column name is returned.
+         * */
+        return $row['Field'];
     }
 
     /*
@@ -1237,418 +1357,6 @@ class Mind {
         } else {
             return false;
         }
-    }
-
-    /*
-     * It is the function to disable the attack codes
-     * targeting the database or users.
-     * --------------------------
-     * string                   $str
-     * string, array            return
-     * --------------------------
-     * */
-    public function filter($str){
-
-        /*
-         * If the data to be filtered is sent as an array,
-         * all items are filtered individually and the
-         * filtered array is returned.
-         * */
-        if(is_array($str)){
-            foreach ($str as $key => $value) {
-                $x[] = $this->filter($value);
-            }
-            return $x;
-        } else {
-
-            /*
-             * The filter uses the mysqli_real_escape_string function
-             * and the FILTER_SANITIZE_FULL_SPECIAL_CHARS property of
-             * the filter_var function, and the filtered data is
-             * returned.
-             * */
-            return mysqli_real_escape_string($this->conn, filter_var($str,FILTER_SANITIZE_FULL_SPECIAL_CHARS));
-        }
-
-    }
-
-    /*
-     * It is the function to query the existence of the
-     * data in the database.
-     * --------------------------
-     * string                   $tblname
-     * string                   $str
-     * string, null             $column
-     * boolean                  return
-     * --------------------------
-     * */
-    public function do_have($tblname, $str, $column=null){
-
-        /*
-         * If the table name and the searched data variables
-         * are not empty, the query operation starts.
-         * */
-        if(!empty($tblname) AND !empty($str)){
-
-            /*
-             * The keyword parameter is added to the syntax.
-             * */
-            $arr = array(
-                'search'=> array(
-                    'keyword' => $this->filter($str)
-                )
-            );
-
-            /*
-             * If the column value is not empty, the column name
-             * is added to the query syntax, especially for
-             * questioning in that column.
-             * */
-            if(!empty($column)){
-                $arr = array(
-                    'search' =>array(
-                        'keyword' => $this->filter($str),
-                        'column' => $this->filter($column)
-                    )
-                );
-            }
-
-            /*
-             * The query results in returning results.
-             * */
-            $data = $this->get($tblname, $arr);
-
-            /*
-             * If the returned result is not empty, the
-             * response will be positive, and if it is
-             * empty, the response will be negative.
-             * */
-
-            if(!empty($data)){
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
-
-    /*
-     * Converts the specified parameter to a seo-friendly
-     * url structure.
-     * --------------------------
-     * string                   $str
-     * array, null              $options
-     * string                   return
-     * --------------------------
-     * */
-    public function permalink($str, $options = array()){
-
-        /*
-         * Ensure that the data is UTF-8, and invalid UTF-8
-         * characters are extracted.
-         * */
-        $str = mb_convert_encoding((string)$str, 'UTF-8', mb_list_encodings());
-
-        /*
-         * Default settings
-         * */
-        $defaults = array(
-            /*
-             * Separator parameter
-             * */
-            'delimiter' => '-',
-
-            /*
-             * Length of data to return
-             * */
-            'limit' => null,
-
-            /*
-             * It is used to convert the size of the rotating data
-             * to small size or leave it as it is.
-             * */
-            'lowercase' => true,
-
-            /*
-             * Used for value change operation
-             * */
-            'replacements' => array(),
-
-            /*
-             * Use special alphabets characters
-             * */
-            'transliterate' => true
-        );
-
-
-        /*
-         * Character sets of languages with special characters
-         * */
-        $char_map = array(
-
-            // Latin
-            'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'A', 'Å' => 'A', 'Æ' => 'AE', 'Ç' => 'C',
-            'È' => 'E', 'É' => 'E', 'Ê' => 'E', 'Ë' => 'E', 'Ì' => 'I', 'Í' => 'I', 'Î' => 'I', 'Ï' => 'I',
-            'Ð' => 'D', 'Ñ' => 'N', 'Ò' => 'O', 'Ó' => 'O', 'Ô' => 'O', 'Õ' => 'O', 'Ö' => 'O', 'Ő' => 'O',
-            'Ø' => 'O', 'Ù' => 'U', 'Ú' => 'U', 'Û' => 'U', 'Ü' => 'U', 'Ű' => 'U', 'Ý' => 'Y', 'Þ' => 'TH',
-            'ß' => 'ss',
-            'à' => 'a', 'á' => 'a', 'â' => 'a', 'ã' => 'a', 'ä' => 'a', 'å' => 'a', 'æ' => 'ae', 'ç' => 'c',
-            'è' => 'e', 'é' => 'e', 'ê' => 'e', 'ë' => 'e', 'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i',
-            'ð' => 'd', 'ñ' => 'n', 'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'õ' => 'o', 'ö' => 'o', 'ő' => 'o',
-            'ø' => 'o', 'ù' => 'u', 'ú' => 'u', 'û' => 'u', 'ü' => 'u', 'ű' => 'u', 'ý' => 'y', 'þ' => 'th',
-            'ÿ' => 'y',
-
-            // Latin symbols
-            '©' => '(c)',
-
-            // Greek
-            'Α' => 'A', 'Β' => 'B', 'Γ' => 'G', 'Δ' => 'D', 'Ε' => 'E', 'Ζ' => 'Z', 'Η' => 'H', 'Θ' => '8',
-            'Ι' => 'I', 'Κ' => 'K', 'Λ' => 'L', 'Μ' => 'M', 'Ν' => 'N', 'Ξ' => '3', 'Ο' => 'O', 'Π' => 'P',
-            'Ρ' => 'R', 'Σ' => 'S', 'Τ' => 'T', 'Υ' => 'Y', 'Φ' => 'F', 'Χ' => 'X', 'Ψ' => 'PS', 'Ω' => 'W',
-            'Ά' => 'A', 'Έ' => 'E', 'Ί' => 'I', 'Ό' => 'O', 'Ύ' => 'Y', 'Ή' => 'H', 'Ώ' => 'W', 'Ϊ' => 'I',
-            'Ϋ' => 'Y',
-            'α' => 'a', 'β' => 'b', 'γ' => 'g', 'δ' => 'd', 'ε' => 'e', 'ζ' => 'z', 'η' => 'h', 'θ' => '8',
-            'ι' => 'i', 'κ' => 'k', 'λ' => 'l', 'μ' => 'm', 'ν' => 'n', 'ξ' => '3', 'ο' => 'o', 'π' => 'p',
-            'ρ' => 'r', 'σ' => 's', 'τ' => 't', 'υ' => 'y', 'φ' => 'f', 'χ' => 'x', 'ψ' => 'ps', 'ω' => 'w',
-            'ά' => 'a', 'έ' => 'e', 'ί' => 'i', 'ό' => 'o', 'ύ' => 'y', 'ή' => 'h', 'ώ' => 'w', 'ς' => 's',
-            'ϊ' => 'i', 'ΰ' => 'y', 'ϋ' => 'y', 'ΐ' => 'i',
-
-            // Turkish
-            'Ş' => 'S', 'İ' => 'I', 'Ç' => 'C', 'Ü' => 'U', 'Ö' => 'O', 'Ğ' => 'G',
-            'ş' => 's', 'ı' => 'i', 'ç' => 'c', 'ü' => 'u', 'ö' => 'o', 'ğ' => 'g',
-
-            // Russian
-            'А' => 'A', 'Б' => 'B', 'В' => 'V', 'Г' => 'G', 'Д' => 'D', 'Е' => 'E', 'Ё' => 'Yo', 'Ж' => 'Zh',
-            'З' => 'Z', 'И' => 'I', 'Й' => 'J', 'К' => 'K', 'Л' => 'L', 'М' => 'M', 'Н' => 'N', 'О' => 'O',
-            'П' => 'P', 'Р' => 'R', 'С' => 'S', 'Т' => 'T', 'У' => 'U', 'Ф' => 'F', 'Х' => 'H', 'Ц' => 'C',
-            'Ч' => 'Ch', 'Ш' => 'Sh', 'Щ' => 'Sh', 'Ъ' => '', 'Ы' => 'Y', 'Ь' => '', 'Э' => 'E', 'Ю' => 'Yu',
-            'Я' => 'Ya',
-            'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'yo', 'ж' => 'zh',
-            'з' => 'z', 'и' => 'i', 'й' => 'j', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o',
-            'п' => 'p', 'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'c',
-            'ч' => 'ch', 'ш' => 'sh', 'щ' => 'sh', 'ъ' => '', 'ы' => 'y', 'ь' => '', 'э' => 'e', 'ю' => 'yu',
-            'я' => 'ya',
-
-            // Ukrainian
-            'Є' => 'Ye', 'І' => 'I', 'Ї' => 'Yi', 'Ґ' => 'G',
-            'є' => 'ye', 'і' => 'i', 'ї' => 'yi', 'ґ' => 'g',
-
-            // Czech
-            'Č' => 'C', 'Ď' => 'D', 'Ě' => 'E', 'Ň' => 'N', 'Ř' => 'R', 'Š' => 'S', 'Ť' => 'T', 'Ů' => 'U',
-            'Ž' => 'Z',
-            'č' => 'c', 'ď' => 'd', 'ě' => 'e', 'ň' => 'n', 'ř' => 'r', 'š' => 's', 'ť' => 't', 'ů' => 'u',
-            'ž' => 'z',
-
-            // Polish
-            'Ą' => 'A', 'Ć' => 'C', 'Ę' => 'e', 'Ł' => 'L', 'Ń' => 'N', 'Ó' => 'o', 'Ś' => 'S', 'Ź' => 'Z',
-            'Ż' => 'Z',
-            'ą' => 'a', 'ć' => 'c', 'ę' => 'e', 'ł' => 'l', 'ń' => 'n', 'ó' => 'o', 'ś' => 's', 'ź' => 'z',
-            'ż' => 'z',
-
-            // Latvian
-            'Ā' => 'A', 'Č' => 'C', 'Ē' => 'E', 'Ģ' => 'G', 'Ī' => 'i', 'Ķ' => 'k', 'Ļ' => 'L', 'Ņ' => 'N',
-            'Š' => 'S', 'Ū' => 'u', 'Ž' => 'Z',
-            'ā' => 'a', 'č' => 'c', 'ē' => 'e', 'ģ' => 'g', 'ī' => 'i', 'ķ' => 'k', 'ļ' => 'l', 'ņ' => 'n',
-            'š' => 's', 'ū' => 'u', 'ž' => 'z'
-        );
-
-        /*
-        * If special alphabet characters are allowed to be applied,
-        * the conversion is performed.
-        * */
-        if($defaults['transliterate']) {
-            $options['replacements'] = $char_map;
-        }
-
-        /*
-         * If a value change request exists and the data is sent in
-         * an array format, the value change is initiated.
-         * */
-        if(!empty($options['replacements']) AND is_array($options['replacements'])){
-            foreach ($options['replacements'] as $objName => $val) {
-
-                /*
-                 * The value is changing
-                 * */
-                $str = str_replace($objName, $val, $str);
-
-            }
-        }
-
-
-        /*
-         * All settings are being merged.
-         * */
-        $options = array_merge($defaults, $options);
-
-        /*
-         * Non-alphanumeric characters are replaced by a separator
-         * symbol.
-         * */
-        $str = preg_replace('/[^\p{L}\p{Nd}]+/u', $options['delimiter'], $str);
-
-        /*
-         * Repeated separator symbols are removed.
-         * */
-        $str = preg_replace('/(' . preg_quote($options['delimiter'], '/') . '){2,}/', '$1', $str);
-
-        /*
-         * The length of the output value is determined.
-         * */
-        $str = mb_substr($str, 0, ($options['limit'] ? $options['limit'] : mb_strlen($str, 'UTF-8')), 'UTF-8');
-
-        /*
-         * The separator symbol is replaced by spaces.
-         * */
-        $str = trim($str, $options['delimiter']);
-
-        /*
-         * Optionally, all parameters are converted to lowercase or
-         * allowed to remain the same size. It is then returned.
-         * */
-        if($options['lowercase']){
-            return mb_strtolower($str, 'UTF-8');
-        } else {
-            return $str;
-        }
-
-    }
-
-    /*
-     * It is the function that provides session control.
-     * */
-    public function session_check(){
-
-        /*
-         * If the session is allowed
-         * */
-        if($this->sessset['status_session']){
-
-            /*
-             * If customized session directory is enabled
-             * */
-            if($this->sessset['path_status']){
-
-                /*
-                 * It is created if the directory where the data is
-                 * stored is not found.
-                 * */
-                if(!is_dir($this->sessset['path'])){
-
-                    /*
-                     * Create the Session folder and set permissions.
-                     * */
-                    mkdir($this->sessset['path']); chmod($this->sessset['path'], 755);
-
-                    /*
-                     * Create a .htaccess file to prevent direct access.
-                     * */
-                    $this->write('deny from all', $this->sessset['path'].'/.htaccess');
-
-                    /*
-                     * Set the permissions of the .htaccess file.
-                     * */
-                    chmod($this->sessset['path'].'/.htaccess', 644);
-                }
-
-                /*
-                 * The session directory is introduced to php.
-                 * */
-                ini_set(
-                    'session.save_path',
-                    realpath(
-                        dirname(__FILE__)
-                    ).'/'.$this->sessset['path']
-                );
-            }
-
-            /*
-             * If the session is not started, a session is started.
-             * */
-            if(!isset($_SESSION)){
-                session_start();
-            }
-
-        }
-    }
-
-    /*
-     * A function for routing.
-     * --------------------------
-     * string                   $url
-     * boolean                  $opt
-     * redirect                 return
-     * --------------------------
-     * */
-    public function redirect($url, $opt=false){
-
-        /*
-         * If it is true, a redirect occurs to the project directory.
-         * */
-        if($opt==true){
-            $url = $this->baseurl;
-        }
-
-        /*
-         * If this is true, the project directory is defined as the
-         * address variable.
-         * */
-        if(!empty($url)) {
-            header('Location: '.$url);
-        }
-
-        /*
-         * In the tests performed, it was seen that the process is
-         * continuing when this parameter is not specified.
-         * */
-        exit();
-    }
-
-    /*
-     * A function that adds the specified content to the
-     * file. If the file does not exist, it creates the
-     * file and inserts the specified content into the
-     * file.
-     * --------------------------
-     * string, array      $str
-     * string             $path
-     * --------------------------
-     * */
-    public function write($str, $path) {
-
-        /*
-         * If the data type is in the array structure, the array
-         * elements are parsed. If the data type is not an array,
-         * it is treated as is.
-         * */
-        if(is_array($str)){
-            $content 	= implode(':', $str);
-        } else {
-            $content    = $str;
-        }
-
-        /*
-         * If content exists, the process is started.
-         * */
-        if(isset($content)){
-
-            /*
-             * The specified file path is opened.
-             * */
-            $writedb 		= fopen($path, "a+");
-
-            /*
-             * The content is added to the file.
-             * */
-            fwrite($writedb, $content."\r\n");
-
-            /*
-             * The file that is opened for writing is closed
-             * after the process is finished.
-             * */
-            fclose($writedb);
-        }
-
     }
 
     /*
@@ -1941,7 +1649,7 @@ class Mind {
     * boolean, string          return
     * --------------------------
     */
-    public function is_url($url, $fix=null){
+    public function is_url($url){
 
         // example.com/ -> http://www.example.com/
         if(!strstr($url, '://') AND !strstr($url, 'www.')){
@@ -1960,21 +1668,497 @@ class Mind {
         }
 
         /*
-         * Negative response is given if not a valid url.
+         * Negative response is given if it is not a valid URL.
+         * A positive answer is given if it is a valid url.
          * */
         if(!preg_match( '/^(http|https|www):\\/\\/[a-z0-9_]+([\\-\\.]{1}[a-z_0-9]+)*\\.[_a-z]{2,5}'.'((:[0-9]{1,5})?\\/.*)?$/i' ,$url)){
             return false;
         } else {
+            return true;
+        }
+    }
+
+    /*
+     * It is a function that provides access to various
+     * information in the file path.
+     * --------------------------
+     * string             $str
+     * string             $type
+     * string             return
+     * --------------------------
+     * */
+    public function info($str, $type){
+
+        /*
+         * The information in the file path is collected.
+         * */
+        $object = pathinfo($str);
+
+        /*
+         * Specifically, the requested information is returned.
+         * */
+        return $object[$type];
+    }
+
+    /*
+     * It is the function to disable the attack codes
+     * targeting the database or users.
+     * --------------------------
+     * string                   $str
+     * string, array            return
+     * --------------------------
+     * */
+    public function filter($str){
+
+        /*
+         * If the data to be filtered is sent as an array,
+         * all items are filtered individually and the
+         * filtered array is returned.
+         * */
+        if(is_array($str)){
+            foreach ($str as $key => $value) {
+                $x[] = $this->filter($value);
+            }
+            return $x;
+        } else {
 
             /*
-             * If the correction is requested, the corrected url will
-             * be presented as an answer, if not requested, a positive
-             * response will be given.
+             * The filter uses the mysqli_real_escape_string function
+             * and the FILTER_SANITIZE_FULL_SPECIAL_CHARS property of
+             * the filter_var function, and the filtered data is
+             * returned.
              * */
-            if($fix){
-                return $url;
-            } else {
-                return true;
+            return mysqli_real_escape_string($this->conn, filter_var($str,FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+        }
+
+    }
+
+    /*
+     * $_GET is a function that interprets $_POST,
+     * $_FILES requests.
+     * */
+    public function request(){
+
+        /*
+         * $_GET, $_POST, $FILES requests are checked
+         * for presence.
+         * */
+        if(isset($_POST) OR isset($_GET) OR isset($_FILES)){
+
+            /*
+             * All requests are put into the same cluster and
+             * processed with the help of the foreach loop.
+             * */
+            foreach (array_merge($_POST, $_GET, $_FILES) as $name => $value) {
+
+                /*
+                 * If the request carries a parameter such as
+                 * multiple files or multiple selections in an
+                 * array format, the request is processed to
+                 * become available.
+                 * */
+                if(is_array($value)){
+                    foreach($value as $key => $all ){
+
+                        /*
+                         * If the request carries a large number of parameters,
+                         * an arrangement is made for practical access to the
+                         * parameters.
+                         * */
+                        if(is_array($all)){
+                            foreach($all as $i => $val ){
+
+                                /*
+                                 * Multiple request parameters are controlled by
+                                 * the filter method.
+                                 * */
+                                $this->post[$name][$i][$key] = $this->filter($val);
+                            }
+                        } else {
+
+                            /*
+                             * The request that carries the single parameter
+                             * is controlled by the filter method.
+                             * */
+                            $this->post[$name][$key] = $this->filter($all);
+                        }
+                    }
+                } else {
+
+                    /*
+                     * If the request parameter is not an array, it is
+                     * controlled by the filter method.
+                     * */
+                    $this->post[$name] = $this->filter($value);
+                }
+            }
+        }
+    }
+
+    /*
+     * A function for routing.
+     * --------------------------
+     * string,null              $url
+     * redirect                 return
+     * --------------------------
+     * */
+    public function redirect($url=null){
+
+        /*
+         * If it is empty, a redirect occurs to the project directory.
+         * */
+        if(empty($url)){
+            $url = $this->baseurl;
+        }
+
+        header('Location: '.$url);
+
+        /*
+         * In the tests performed, it was seen that the process is
+         * continuing when this parameter is not specified.
+         * */
+        exit();
+    }
+
+    /*
+     * It is the auxiliary function created for the route
+     * function. The responsibility for this function is
+     * to include the specified file or files if they were
+     * created.
+     --------------------------
+     * string, array            $file
+     * string, array, null      $cache
+     * include                  return
+     * --------------------------
+     *
+     * */
+    private function mindload($file, $cache=null){
+
+        /*
+         * If the file or cache variable is not empty, the evaluations
+         * are started.
+         * */
+        if(!empty($file) OR !empty($cache)){
+
+            /*
+             * If a file defined for the cache is specified in a string
+             * type, it is converted to an array.
+             * */
+            if (!empty($cache) AND !is_array($cache)) {
+                $cache = array($cache);
+            }
+
+            /*
+             * If the cache variable is not empty, the boot starts.
+             * */
+            if (!empty($cache)) {
+                foreach ($cache as $cachefile) {
+
+                    /*
+                     * The cache file is included if available.
+                     * */
+                    if (file_exists($cachefile . '.php')) {
+                        require_once($cachefile . '.php');
+                    }
+                }
+            }
+
+            /*
+             * If the file variable is not empty, the process is
+             * started.
+             * */
+            if(!empty($file)){
+
+                /*
+                 * The variable in which the files are kept is defined as
+                 * an array.
+                 * */
+                $files = array();
+
+                /*
+                 * If the incoming value is not in the array format, it is
+                 * converted to the array format.Otherwise, the files are
+                 * assigned to the variable as is.
+                 * */
+                if(!is_array($file)){
+                    $files = array($file);
+                } else {
+                    $files = $file;
+                }
+
+                /*
+                 * Files are uploaded to the project with the help of the foreach cycle.
+                 * */
+                foreach ($files as $file){
+
+                    /*
+                     * The file is loaded if available.
+                     * */
+                    if (file_exists($file . '.php')) {
+                        /*
+                         * The file is added to the page.
+                         * */
+                        require_once($file . '.php');
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+     * Converts the specified parameter to a seo-friendly
+     * url structure.
+     * --------------------------
+     * string                   $str
+     * array, null              $options
+     * string                   return
+     * --------------------------
+     * */
+    public function permalink($str, $options = array()){
+
+        /*
+         * Ensure that the data is UTF-8, and invalid UTF-8
+         * characters are extracted.
+         * */
+        $str = mb_convert_encoding((string)$str, 'UTF-8', mb_list_encodings());
+
+        /*
+         * Default settings
+         * */
+        $defaults = array(
+            /*
+             * Separator parameter
+             * */
+            'delimiter' => '-',
+
+            /*
+             * Length of data to return
+             * */
+            'limit' => null,
+
+            /*
+             * It is used to convert the size of the rotating data
+             * to small size or leave it as it is.
+             * */
+            'lowercase' => true,
+
+            /*
+             * Used for value change operation
+             * */
+            'replacements' => array(),
+
+            /*
+             * Use special alphabets characters
+             * */
+            'transliterate' => true
+        );
+
+
+        /*
+         * Character sets of languages with special characters
+         * */
+        $char_map = array(
+
+            // Latin
+            'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'A', 'Å' => 'A', 'Æ' => 'AE', 'Ç' => 'C',
+            'È' => 'E', 'É' => 'E', 'Ê' => 'E', 'Ë' => 'E', 'Ì' => 'I', 'Í' => 'I', 'Î' => 'I', 'Ï' => 'I',
+            'Ð' => 'D', 'Ñ' => 'N', 'Ò' => 'O', 'Ó' => 'O', 'Ô' => 'O', 'Õ' => 'O', 'Ö' => 'O', 'Ő' => 'O',
+            'Ø' => 'O', 'Ù' => 'U', 'Ú' => 'U', 'Û' => 'U', 'Ü' => 'U', 'Ű' => 'U', 'Ý' => 'Y', 'Þ' => 'TH',
+            'ß' => 'ss',
+            'à' => 'a', 'á' => 'a', 'â' => 'a', 'ã' => 'a', 'ä' => 'a', 'å' => 'a', 'æ' => 'ae', 'ç' => 'c',
+            'è' => 'e', 'é' => 'e', 'ê' => 'e', 'ë' => 'e', 'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i',
+            'ð' => 'd', 'ñ' => 'n', 'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'õ' => 'o', 'ö' => 'o', 'ő' => 'o',
+            'ø' => 'o', 'ù' => 'u', 'ú' => 'u', 'û' => 'u', 'ü' => 'u', 'ű' => 'u', 'ý' => 'y', 'þ' => 'th',
+            'ÿ' => 'y',
+
+            // Latin symbols
+            '©' => '(c)',
+
+            // Greek
+            'Α' => 'A', 'Β' => 'B', 'Γ' => 'G', 'Δ' => 'D', 'Ε' => 'E', 'Ζ' => 'Z', 'Η' => 'H', 'Θ' => '8',
+            'Ι' => 'I', 'Κ' => 'K', 'Λ' => 'L', 'Μ' => 'M', 'Ν' => 'N', 'Ξ' => '3', 'Ο' => 'O', 'Π' => 'P',
+            'Ρ' => 'R', 'Σ' => 'S', 'Τ' => 'T', 'Υ' => 'Y', 'Φ' => 'F', 'Χ' => 'X', 'Ψ' => 'PS', 'Ω' => 'W',
+            'Ά' => 'A', 'Έ' => 'E', 'Ί' => 'I', 'Ό' => 'O', 'Ύ' => 'Y', 'Ή' => 'H', 'Ώ' => 'W', 'Ϊ' => 'I',
+            'Ϋ' => 'Y',
+            'α' => 'a', 'β' => 'b', 'γ' => 'g', 'δ' => 'd', 'ε' => 'e', 'ζ' => 'z', 'η' => 'h', 'θ' => '8',
+            'ι' => 'i', 'κ' => 'k', 'λ' => 'l', 'μ' => 'm', 'ν' => 'n', 'ξ' => '3', 'ο' => 'o', 'π' => 'p',
+            'ρ' => 'r', 'σ' => 's', 'τ' => 't', 'υ' => 'y', 'φ' => 'f', 'χ' => 'x', 'ψ' => 'ps', 'ω' => 'w',
+            'ά' => 'a', 'έ' => 'e', 'ί' => 'i', 'ό' => 'o', 'ύ' => 'y', 'ή' => 'h', 'ώ' => 'w', 'ς' => 's',
+            'ϊ' => 'i', 'ΰ' => 'y', 'ϋ' => 'y', 'ΐ' => 'i',
+
+            // Turkish
+            'Ş' => 'S', 'İ' => 'I', 'Ç' => 'C', 'Ü' => 'U', 'Ö' => 'O', 'Ğ' => 'G',
+            'ş' => 's', 'ı' => 'i', 'ç' => 'c', 'ü' => 'u', 'ö' => 'o', 'ğ' => 'g',
+
+            // Russian
+            'А' => 'A', 'Б' => 'B', 'В' => 'V', 'Г' => 'G', 'Д' => 'D', 'Е' => 'E', 'Ё' => 'Yo', 'Ж' => 'Zh',
+            'З' => 'Z', 'И' => 'I', 'Й' => 'J', 'К' => 'K', 'Л' => 'L', 'М' => 'M', 'Н' => 'N', 'О' => 'O',
+            'П' => 'P', 'Р' => 'R', 'С' => 'S', 'Т' => 'T', 'У' => 'U', 'Ф' => 'F', 'Х' => 'H', 'Ц' => 'C',
+            'Ч' => 'Ch', 'Ш' => 'Sh', 'Щ' => 'Sh', 'Ъ' => '', 'Ы' => 'Y', 'Ь' => '', 'Э' => 'E', 'Ю' => 'Yu',
+            'Я' => 'Ya',
+            'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'yo', 'ж' => 'zh',
+            'з' => 'z', 'и' => 'i', 'й' => 'j', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o',
+            'п' => 'p', 'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'c',
+            'ч' => 'ch', 'ш' => 'sh', 'щ' => 'sh', 'ъ' => '', 'ы' => 'y', 'ь' => '', 'э' => 'e', 'ю' => 'yu',
+            'я' => 'ya',
+
+            // Ukrainian
+            'Є' => 'Ye', 'І' => 'I', 'Ї' => 'Yi', 'Ґ' => 'G',
+            'є' => 'ye', 'і' => 'i', 'ї' => 'yi', 'ґ' => 'g',
+
+            // Czech
+            'Č' => 'C', 'Ď' => 'D', 'Ě' => 'E', 'Ň' => 'N', 'Ř' => 'R', 'Š' => 'S', 'Ť' => 'T', 'Ů' => 'U',
+            'Ž' => 'Z',
+            'č' => 'c', 'ď' => 'd', 'ě' => 'e', 'ň' => 'n', 'ř' => 'r', 'š' => 's', 'ť' => 't', 'ů' => 'u',
+            'ž' => 'z',
+
+            // Polish
+            'Ą' => 'A', 'Ć' => 'C', 'Ę' => 'e', 'Ł' => 'L', 'Ń' => 'N', 'Ó' => 'o', 'Ś' => 'S', 'Ź' => 'Z',
+            'Ż' => 'Z',
+            'ą' => 'a', 'ć' => 'c', 'ę' => 'e', 'ł' => 'l', 'ń' => 'n', 'ó' => 'o', 'ś' => 's', 'ź' => 'z',
+            'ż' => 'z',
+
+            // Latvian
+            'Ā' => 'A', 'Č' => 'C', 'Ē' => 'E', 'Ģ' => 'G', 'Ī' => 'i', 'Ķ' => 'k', 'Ļ' => 'L', 'Ņ' => 'N',
+            'Š' => 'S', 'Ū' => 'u', 'Ž' => 'Z',
+            'ā' => 'a', 'č' => 'c', 'ē' => 'e', 'ģ' => 'g', 'ī' => 'i', 'ķ' => 'k', 'ļ' => 'l', 'ņ' => 'n',
+            'š' => 's', 'ū' => 'u', 'ž' => 'z'
+        );
+
+        $replacements = array();
+
+        if(!empty($options['replacements']) AND is_array($options['replacements'])){
+            $replacements = $options['replacements'];
+        }
+
+        if(!$defaults['transliterate']){
+            $char_map = array();
+        }
+
+        $options['replacements'] = array_merge($replacements, $char_map);
+
+        /*
+         * If a value change request exists and the data is sent in
+         * an array format, the value change is initiated.
+         * */
+        if(!empty($options['replacements']) AND is_array($options['replacements'])){
+            foreach ($options['replacements'] as $objName => $val) {
+
+                /*
+                 * The value is changing
+                 * */
+                $str = str_replace($objName, $val, $str);
+
+            }
+        }
+
+
+        /*
+         * All settings are being merged.
+         * */
+        $options = array_merge($defaults, $options);
+
+        /*
+         * Non-alphanumeric characters are replaced by a separator
+         * symbol.
+         * */
+        $str = preg_replace('/[^\p{L}\p{Nd}]+/u', $options['delimiter'], $str);
+
+        /*
+         * Repeated separator symbols are removed.
+         * */
+        $str = preg_replace('/(' . preg_quote($options['delimiter'], '/') . '){2,}/', '$1', $str);
+
+        /*
+         * The length of the output value is determined.
+         * */
+        $str = mb_substr($str, 0, ($options['limit'] ? $options['limit'] : mb_strlen($str, 'UTF-8')), 'UTF-8');
+
+        /*
+         * The separator symbol is replaced by spaces.
+         * */
+        $str = trim($str, $options['delimiter']);
+
+        /*
+         * Optionally, all parameters are converted to lowercase or
+         * allowed to remain the same size. It is then returned.
+         * */
+        if($options['lowercase']){
+            return mb_strtolower($str, 'UTF-8');
+        } else {
+            return $str;
+        }
+
+    }
+
+    /*
+     * It is used to obtain a list of compatible time
+     * zones as an array.
+     * --------------------------
+     * array                return
+     * --------------------------
+     * */
+    public function timezones(){
+
+        /*
+         * The list of time zones is returned.
+         * */
+        return timezone_identifiers_list();
+    }
+
+    /*
+     * It is the function that provides session control.
+     * */
+    public function session_check(){
+
+        /*
+         * If the session is allowed
+         * */
+        if($this->sessset['status_session']){
+
+            /*
+             * If customized session directory is enabled
+             * */
+            if($this->sessset['path_status']){
+
+                /*
+                 * It is created if the directory where the data is
+                 * stored is not found.
+                 * */
+                if(!is_dir($this->sessset['path'])){
+
+                    /*
+                     * Create the Session folder and set permissions.
+                     * */
+                    mkdir($this->sessset['path']); chmod($this->sessset['path'], 755);
+
+                    /*
+                     * Create a .htaccess file to prevent direct access.
+                     * */
+                    $this->write('deny from all', $this->sessset['path'].'/.htaccess');
+
+                    /*
+                     * Set the permissions of the .htaccess file.
+                     * */
+                    chmod($this->sessset['path'].'/.htaccess', 644);
+                }
+
+                /*
+                 * The session directory is introduced to php.
+                 * */
+                ini_set(
+                    'session.save_path',
+                    realpath(
+                        dirname(__FILE__)
+                    ).'/'.$this->sessset['path']
+                );
+            }
+
+            /*
+             * If the session is not started, a session is started.
+             * */
+            if(!isset($_SESSION)){
+                session_start();
             }
 
         }
@@ -2219,256 +2403,50 @@ class Mind {
     }
 
     /*
-     * It is the auxiliary function created for the route
-     * function. The responsibility for this function is
-     * to include the specified file or files if they were
-     * created.
-     --------------------------
-     * string, array            $file
-     * string, array, null      $cache
-     * include                  return
+     * A function that adds the specified content to the
+     * file. If the file does not exist, it creates the
+     * file and inserts the specified content into the
+     * file.
      * --------------------------
-     *
-     * */
-    public function mindload($file, $cache){
-
-        /*
-         * If the file or cache variable is not empty, the evaluations
-         * are started.
-         * */
-        if(!empty($file) OR !empty($cache)){
-
-            /*
-             * If a file defined for the cache is specified in a string
-             * type, it is converted to an array.
-             * */
-            if (!empty($cache) AND !is_array($cache)) {
-                $cache = array($cache);
-            }
-
-            /*
-             * If the cache variable is not empty, the boot starts.
-             * */
-            if (!empty($cache)) {
-                foreach ($cache as $cachefile) {
-
-                    /*
-                     * The cache file is included if available.
-                     * */
-                    if (file_exists($cachefile . '.php')) {
-                        require_once($cachefile . '.php');
-                    }
-                }
-            }
-
-            /*
-             * If the file variable is not empty, the process is
-             * started.
-             * */
-            if(!empty($file)){
-
-                /*
-                 * The variable in which the files are kept is defined as
-                 * an array.
-                 * */
-                $files = array();
-
-                /*
-                 * If the incoming value is not in the array format, it is
-                 * converted to the array format.Otherwise, the files are
-                 * assigned to the variable as is.
-                 * */
-                if(!is_array($file)){
-                    $files = array($file);
-                } else {
-                    $files = $file;
-                }
-
-                /*
-                 * Files are uploaded to the project with the help of the foreach cycle.
-                 * */
-                foreach ($files as $file){
-
-                    /*
-                     * The file is loaded if available.
-                     * */
-                    if (file_exists($file . '.php')) {
-                        /*
-                         * The file is added to the page.
-                         * */
-                        require_once($file . '.php');
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-     * It is a function that provides access to various
-     * information in the file path.
-     * --------------------------
-     * string             $str
-     * string             $type
-     * string             return
-     * --------------------------
-     * */
-    public function info($str, $type){
-
-        /*
-         * The information in the file path is collected.
-         * */
-        $object = pathinfo($str);
-
-        /*
-         * Specifically, the requested information is returned.
-         * */
-        return $object[$type];
-    }
-
-    /*
-     * It is used to obtain a list of compatible time
-     * zones as an array.
-     * --------------------------
-     * array                return
-     * --------------------------
-     * */
-    public function timezones(){
-
-        /*
-         * The list of time zones is returned.
-         * */
-        return timezone_identifiers_list();
-    }
-
-    /*
-     * A function that returns the auto_increment value
-     * to be allocated for the record to be added to
-     * the database table.
-     * --------------------------
-     * string             $tblname
-     * string             return
-     * --------------------------
-     * */
-    public function lastid($tblname){
-
-        /*
-         * In the database table, the column name with the auto-increment
-         * property is defined in the column name field to be displayed in
-         * the query syntax.
-         * */
-        $arr = array(
-            'column'  =>  $this->autoincrement($tblname)
-        );
-
-        /*
-         * The numbers defined by auto_increment are obtained.
-         * */
-        $q = $this->get($tblname, $arr);
-
-        /*
-         * If there is no record, the entire table is deleted and the
-         * auto_increment value is also reset.
-         * */
-        if(empty($q)){
-
-            /*
-             * Resetting table.
-             * */
-            $this->cleartable($tblname);
-
-            /*
-             * Because the new element of the empty table is 1, 1
-             * is returned.
-             * */
-            $id = 1;
-            return $id;
-
-        } else {
-
-            /*
-             * If the result of the query is not empty, the largest
-             * of all numbers is collected with 1, and the result is
-             * presented in response.
-             * */
-            foreach ($q as $id) {
-                $d[] = $id;
-            }
-            return implode('', max($d))+1;
-
-        }
-    }
-
-    /*
-     * In the database table, the auto increment property is the
-     * function to find the defined column name.
-     * --------------------------
-     * string             $tblname
-     * string             return
-     * --------------------------
-     * */
-    public function autoincrement($tblname){
-
-        /*
-         * Syntax that finds the name of the column with the ability
-         * to automatically increase.
-         * */
-        $sql = "show columns from ".$tblname." where extra like '%auto_increment%'";
-
-        /*
-         * Running query.
-         * */
-        $query = $this->querySQL($sql);
-
-        /*
-         * The result is assigned to the variable.
-         * */
-        $row = $query->fetch_assoc();
-
-        /*
-         * The column name is returned.
-         * */
-        return $row['Field'];
-    }
-
-    /*
-     * Multi-language support is a function to provide. If there
-     * is a description, it is printed. If it is not, the request
-     * will be printed.
-     * --------------------------
+     * string, array      $str
      * string             $path
-     * string             $name
-     * string             return
      * --------------------------
      * */
-    public function lang($path, $name){
+    public function write($str, $path) {
 
         /*
-         * If the parameter is not empty, the operation is executed.
+         * If the data type is in the array structure, the array
+         * elements are parsed. If the data type is not an array,
+         * it is treated as is.
          * */
-        if(!empty($name)){
+        if(is_array($str)){
+            $content 	= implode(':', $str);
+        } else {
+            $content    = $str;
+        }
+
+        /*
+         * If content exists, the process is started.
+         * */
+        if(isset($content)){
 
             /*
-             * If file exists, start processing.
+             * The specified file path is opened.
              * */
-            if(file_exists($path.'.php')){
+            $writedb 		= fopen($path, "a+");
 
-                /*
-                 * The file is included in the class.
-                 * */
-                include($path.'.php');
+            /*
+             * The content is added to the file.
+             * */
+            fwrite($writedb, $content."\r\n");
 
-                /*
-                 * It is checked whether a rack is reserved for the specified
-                 * parameter. If there is a shelf, the value is printed in it.
-                 * If not, the parameter itself is printed.
-                 * */
-                if(array_key_exists($name, $lang)){
-                    echo $lang[$name];
-                } else {
-                    echo $name;
-                }
-            }
+            /*
+             * The file that is opened for writing is closed
+             * after the process is finished.
+             * */
+            fclose($writedb);
         }
+
     }
 
     /*
@@ -2479,7 +2457,7 @@ class Mind {
      * array, boolean     return
      * --------------------------
      * */
-    public function fileupload($files, $path){
+    public function upload($files, $path){
 
         $response = array();
 
@@ -2537,6 +2515,93 @@ class Mind {
          * */
         return $response;
     }
+
+    /*
+    * This function is used to retrieve records that have
+    * containers specified from the specified URL or content.
+    * --------------------------
+    * string                   $left
+    * string                   $right
+    * null, array              return
+    * --------------------------
+    * */
+    public function get_contents($left, $right, $url){
+
+
+
+        /*
+         * The operation run time is made unlimited.
+         * */
+        set_time_limit(0);
+
+        /*
+         * The result variable default is defined as null.
+         * */
+        $result = array();
+
+        /*
+         * If the URL is specified, the source code of the
+         * link page is retrieved and assigned to the data
+         * variable.
+         * */
+        if($this->is_url($url)) {
+
+            /*
+             * Connection is provided without using SSL.
+             * */
+            $arrContextOptions = stream_context_create(array(
+                'ssl' => array(
+                    'verify_peer' 		=> false,
+                    'verify_peer_name' 	=> false,
+                )
+            ));
+
+            /*
+             * If the URL does not have the proper syntax for the
+             * connection and the second parameter is correctly
+             * specified, the url syntax is corrected and the
+             * connection is established.
+             * */
+            $data = file_get_contents($url, false, $arrContextOptions);
+        } else {
+
+            /*
+             * If the specified value is not a url, it is assigned
+             * to the data variable because it is a content.
+             * */
+            $data = $url;
+        }
+
+        /*
+         * Some gaps are removed for easier processing of
+         * the resulting content.
+         * */
+        $content = str_replace(array("\n", "\r", "\t"), '', $data);
+
+        /*
+         * Left and Right containers are searched.
+         * */
+        if(preg_match_all('/'.preg_quote($left, '/').'(.*?)'.preg_quote($right, '/').'/i', $content, $result)){
+
+            /*
+             * If a record is detected in the specified range.
+             * */
+            if(!empty($result)){
+
+                /*
+                 * The result is returned by ignoring the first record.
+                 * */
+                return array_unique($result[1]);
+            } else {
+
+                /*
+                 * If there is no result, a blank answer is given.
+                 * */
+                return $result;
+            }
+        }
+    }
+
 
 }
 new Mind;

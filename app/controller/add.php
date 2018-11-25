@@ -11,7 +11,7 @@ if (
         'created_at'=>date('d-m-Y H:i:s')
     );
     $this->insert('phonebook', $arr);
-    $this->redirect(true, true);
+    $this->redirect();
 }
 
 ?>

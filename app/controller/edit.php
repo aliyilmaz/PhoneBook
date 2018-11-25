@@ -13,7 +13,7 @@ if (
         'updated_at'=>date('d-m-Y H:i:s')
     );
     $this->update($tblname, $arr, $this->post['id']);
-    $this->redirect(true, true);
+    $this->redirect();
 
 } elseif ($this->do_have($tblname, $this->post['id'], 'id')) {
     $arr = array(
@@ -24,7 +24,7 @@ if (
     );
     $record = $this->get($tblname, $arr);
 } else {
-    $this->redirect(true, true);
+    $this->redirect();
 }
 
 ?>

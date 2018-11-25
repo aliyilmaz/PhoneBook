@@ -63,6 +63,6 @@
     </div>
     <p class="lead">
         This app was made by creating the MVC design pattern with <a href="https://github.com/aliyilmaz/Mind">Mind</a>.
-        A simple phone book application. To follow the Mind class or developments related to this project,
+        This is a simple phone book application. To follow the Mind class or developments related to this project,
         you can follow my <a href="https://github.com/aliyilmaz">GitHub account</a> or <a href="https://github.com/aliyilmaz/PhoneBook">PhoneBook</a> page.
     </p>
