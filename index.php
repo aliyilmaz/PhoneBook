@@ -1,6 +1,8 @@
 <?php
 
 require_once ('./Mind.php');
+use Mind\Mind;
+
 $db = new Mind();
 
 $list = array(
