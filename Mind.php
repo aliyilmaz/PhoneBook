@@ -4,11 +4,12 @@ namespace Mind;
 /**
  *
  * @package    Mind
- * @version    Release: 1.4
+ * @version    Release: 2.0
  * @license    GNU General Public License v3.0
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for Php.
- * @url        https://github.com/aliyilmaz/Mind
+ * @link       https://github.com/aliyilmaz/Mind
+ *
  *
  */
 class Mind {
@@ -38,7 +39,7 @@ class Mind {
 
         if(
             empty(
-                $_SESSION['timezone']
+            $_SESSION['timezone']
             ) OR in_array(
                 $_SESSION['timezone'], $this->timezones()
             )
@@ -49,6 +50,9 @@ class Mind {
         date_default_timezone_set($_SESSION['timezone']);
 
         $this->baseurl = dirname($_SERVER['SCRIPT_NAME']).'/';
+
+        #error_reporting(E_ALL);
+        #ini_set('display_errors', 1);
 
     }
 
@@ -114,6 +118,75 @@ class Mind {
     }
 
     /**
+     * Column sql syntax creator.
+     *
+     * @param array $scheme
+     * @param string|null $funcName
+     * @return array
+     */
+    public function cGenerator($scheme, $funcName=null){
+
+        $sql = array();
+
+        foreach (array_values($scheme) as $array_value) {
+
+            $colonParse = array();
+            if(strstr($array_value, ':')){
+                $colonParse = array_filter(explode(':', trim($array_value, ':')));
+            }
+
+            $columnValue = null;
+            $columnType = null;
+
+            if(count($colonParse)==3){
+                list($columnName, $columnType, $columnValue) = $colonParse;
+            }elseif (count($colonParse)==2){
+                list($columnName, $columnType) = $colonParse;
+            } else {
+                $columnName = $array_value;
+                $columnType = 'small';
+            }
+
+            if(is_null($columnValue) AND $columnType =='decimal') { $columnValue = 6.2; }
+            if(is_null($columnValue)){ $columnValue = 11; }
+
+            $first = '';
+            $prefix = '';
+            if(!is_null($funcName) AND $funcName == 'createcolumn'){
+                $first = 'FIRST';
+                $prefix = 'ADD COLUMN ';
+            }
+
+
+            switch ($columnType){
+                case 'int':
+                    $sql[] = $prefix.$columnName.' int('.$columnValue.')';
+                    break;
+                case 'decimal':
+                    $sql[] = $prefix.$columnName.' DECIMAL('.$columnValue.')';
+                    break;
+                case 'string':
+                    $sql[] = $prefix.$columnName.' VARCHAR('.$columnValue.')';
+                    break;
+                case 'small':
+                    $sql[] = $prefix.$columnName.' TEXT';
+                    break;
+                case 'medium':
+                    $sql[] = $prefix.$columnName.' MEDIUMTEXT';
+                    break;
+                case 'large':
+                    $sql[] = $prefix.$columnName.' LONGTEXT';
+                    break;
+                case 'increments':
+                    $sql[] = $prefix.$columnName.' int('.$columnValue.') UNSIGNED AUTO_INCREMENT PRIMARY KEY '.$first;
+                    break;
+            }
+        }
+
+        return $sql;
+    }
+
+    /**
      * Creating a database.
      *
      * @param mixed $dbname
@@ -134,11 +207,6 @@ class Mind {
         foreach ($dbnames as $dbname) {
 
             if($this->is_db($dbname)){
-                echo "Error: A database named (".$dbname.") already exists.\n";
-                return false;
-            }
-            if(!preg_match('/^[A-Za-z0-9_]+$/', $dbname)){
-                echo "Error: The database could not be created because (".$dbname.") is not alphanumeric.\n";
                 return false;
             }
 
@@ -153,85 +221,20 @@ class Mind {
      * Creating a table.
      *
      * @param mixed   $tblname
-     * @param mixed   $arr
+     * @param mixed   $scheme
      * @return  bool
      * */
-    public function createtable($tblname, $arr){
+    public function createtable($tblname, $scheme){
 
         if($this->is_table($tblname)){
-            echo "Error: A Table named (".$tblname.") already exists.\n";
-            return false;
-        }
-        if(!preg_match('/^[A-Za-z0-9_]+$/', $tblname)){
-            echo "Error: The database table could not be created because (".$tblname.") is not an alphanumeric name.\n";
             return false;
         }
 
-        $xsql = array();
-        $columns = array();
-        $types  = array();
-        $typeDefault = 'small';
-        $typeLibrary = array(
-            'small'         =>  'TEXT',
-            'medium'        =>  'MEDIUMTEXT',
-            'large'         =>  'LONGTEXT'
-        );
-
-        if(is_array($arr)){
+        if(is_array($scheme)){
 
             $sql = 'CREATE TABLE '.$tblname.'( ';
 
-            foreach ($arr as $item) {
-
-                if(strstr($item, ':')){
-
-                    $symbolsTotal = count(explode(':', $item));
-
-                    if($symbolsTotal != 2){
-                        echo "Error: You can use the (:) symbol once.\n";
-                        return false;
-                    }
-
-                    list($column, $type) = explode(':', $item);
-
-                    $columns[] = $column;
-
-                    if(!array_key_exists($type, $typeLibrary) AND $type == 'increments'){
-                        $xsql[] = $column.' INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY';
-                        $types[] = $type;
-                    }
-
-                    if(array_key_exists($type, $typeLibrary) AND $type != 'increments'){
-                        $xsql[] = $column.' '.$typeLibrary[$type].' NULL';
-                        $columns[] = $column;
-                    }
-                } else {
-
-                    $xsql[] = $item.' '.$typeLibrary[$typeDefault].' NULL';
-                    $columns[] = $item;
-                }
-            }
-
-            if(count($types)>1){
-                echo "Error: The auto_increment task cannot be defined in multiple columns.\n";
-                return false;
-            }
-
-            $tcolumns = array_count_values($columns);
-            foreach ($columns as $key => $column) {
-
-                if($tcolumns[$column]>1){
-                    echo "Error: The column named (".$column.") already exists.\n";
-                    return false;
-                }
-
-                if(!preg_match('/^[A-Za-z0-9_]+$/', $column)){
-                    echo "Error: The table column could not be created because (".$column.") is not an alphanumeric name.\n";
-                    return false;
-                }
-            }
-
-            $sql .= implode(',', $xsql).')';
+            $sql .= implode(',', $this->cGenerator($scheme)).')';
 
             $this->prepare($sql);
 
@@ -246,80 +249,20 @@ class Mind {
      * Creating a column.
      *
      * @param mixed   $tblname
-     * @param mixed   $arr
+     * @param mixed   $scheme
      * @return  bool
      * */
-    public function createcolumn($tblname, $arr){
+    public function createcolumn($tblname, $scheme){
 
         if(!$this->is_table($tblname)){
-            echo "Error: Since there is no table named (".$tblname."), a column cannot be created in a table with that name.\n";
             return false;
         }
 
-        $xsql = array();
-        $tcolumns = array();
-        $columns = array();
-        $types  = array();
-        $typeDefault = 'small';
-        $typeLibrary = array(
-            'small'         =>  'TEXT',
-            'medium'        =>  'MEDIUMTEXT',
-            'large'         =>  'LONGTEXT'
-        );
-
-        if(is_array($arr)){
+        if(is_array($scheme)){
 
             $sql = 'ALTER TABLE '.$tblname.' ';
 
-            foreach ($arr as $item) {
-
-                if(strstr($item, ':')){
-
-                    $symbolsTotal = count(explode(':', $item));
-
-                    if($symbolsTotal != 2){
-                        echo "Error: You can use the (:) symbol once.\n";
-                        return false;
-                    }
-
-                    list($column, $type) = explode(':', $item);
-
-                    if(!array_key_exists($type, $typeLibrary) AND $type == 'increments'){
-                        $xsql[] = 'ADD COLUMN '.$column.' INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY FIRST';
-                        $types[] = $type;
-                    }
-
-                    if(array_key_exists($type, $typeLibrary) AND $type != 'increments'){
-                        $xsql[] = 'ADD COLUMN '.$column.' '.$typeLibrary[$type].' NULL';
-                        $columns[] = $column;
-                    }
-                } else {
-
-                    $xsql[] = 'ADD COLUMN '.$item.' '.$typeLibrary[$typeDefault].' NULL';
-                    $columns[] = $item;
-                }
-            }
-
-            if(count($types)>=1 AND !empty($this->increments($tblname))){
-                echo "Error: The auto-increment feature can only be in one column.\n";
-                return false;
-            }
-
-            $tcolumns = array_count_values($columns);
-            foreach ($columns as $key => $column) {
-
-                if($tcolumns[$column]>1 OR $this->is_column($tblname, $column)){
-                    echo "Error: The column named (".$column.") already exists.\n";
-                    return false;
-                }
-
-                if(!preg_match('/^[A-Za-z0-9_]+$/', $column)){
-                    echo "Error: The table column could not be created because (".$column.") is not an alphanumeric name.\n";
-                    return false;
-                }
-            }
-
-            $sql .= implode(',', $xsql);
+            $sql .= implode(',', $this->cGenerator($scheme, 'createcolumn'));
 
             $this->prepare($sql);
 
@@ -348,13 +291,7 @@ class Mind {
         }
         foreach ($dbnames as $dbname) {
 
-            if(!preg_match('/^[A-Za-z0-9_]+$/', $dbname)){
-                echo "Error: Only database with an alphanumeric name can be deleted. (".$dbname.") is not alphanumeric.\n";
-                return false;
-            }
-
             if(!$this->is_db($dbname)){
-                echo "Error: Unable to delete because there is no database named  (".$dbname.").\n";
                 return false;
             }
 
@@ -376,18 +313,17 @@ class Mind {
 
         if(is_array($tblname)){
             foreach ($tblname as $key => $value) {
-                if(!$this->is_table($value)){
-                    return false;
-                }
                 $tblnames[] = $value;
             }
         } else {
-            if(!$this->is_table($tblname)){
-                return false;
-            }
             $tblnames[] = $tblname;
         }
         foreach ($tblnames as $tblname) {
+
+            if(!$this->is_table($tblname)){
+                return false;
+            }
+
             $sql = 'DROP TABLE '.$tblname;
             $this->prepare($sql);
         }
@@ -404,7 +340,6 @@ class Mind {
     public function deletecolumn($tblname, $column){
 
         if(!$this->is_table($tblname)){
-            echo "Error: The request to delete the column resulted in a negative because there was no table named (".$tblname.").\n";
             return false;
         }
 
@@ -418,16 +353,6 @@ class Mind {
             $columns[] = $column;
         }
         foreach ($columns as $column) {
-
-            if(!preg_match('/^[A-Za-z0-9_]+$/', $column)){
-                echo "Error: The column named (".$column.") could not be delete because it is not alphanumeric.\n";
-                return false;
-            }
-
-            if(!$this->is_column($tblname, $column)){
-                echo "Error: You cannot delete the non-existing column named (".$column.").\n";
-                return false;
-            }
 
             $sql = 'ALTER TABLE '.$tblname.' DROP COLUMN '.$column;
             $this->prepare($sql);
@@ -454,13 +379,7 @@ class Mind {
         }
         foreach ($dbnames as $dbname) {
 
-            if(!preg_match('/^[A-Za-z0-9_]+$/', $dbname)){
-                echo "Error: Only databases with an alphanumeric name can be cleared. (".$dbname.") is not alphanumeric.\n";
-                return false;
-            }
-
             if(!$this->is_db($dbname)){
-                echo "Error: Unable to clear because there is no database named  (".$dbname.").\n";
                 return false;
             }
 
@@ -495,13 +414,7 @@ class Mind {
 
         foreach ($tblnames as $tblname) {
 
-            if(!preg_match('/^[A-Za-z0-9_]+$/', $tblname)){
-                echo "Error: Only tables with an alphanumeric name can be cleared. (".$tblname.") is not alphanumeric.\n";
-                return false;
-            }
-
             if(!$this->is_table($tblname)){
-                echo "Error: Unable to clear because there is no table named  (".$tblname.").\n";
                 return false;
             }
 
@@ -523,7 +436,6 @@ class Mind {
         $columns = array();
 
         if(!$this->is_table($tblname)){
-            echo "Error: The request to clean the column resulted in a negative because there was no table named (".$tblname.").\n";
             return false;
         }
 
@@ -537,14 +449,7 @@ class Mind {
 
         foreach ($columns as $column) {
 
-
-            if(!preg_match('/^[A-Za-z0-9_]+$/', $column)){
-                echo "Error: The column named (".$column.") could not be created because it is not alphanumeric.\n";
-                return false;
-            }
-
             if(!$this->is_column($tblname, $column)){
-                echo "Error: You cannot clear the non-existing column named (".$column.").\n";
                 return false;
             }
 
@@ -573,7 +478,6 @@ class Mind {
     public function insert($tblname, $arr){
 
         if(!$this->is_table($tblname)){
-            echo "Error: Failed to add data because (".$tblname.") table could not be found.\n";
             return false;
         }
 
@@ -583,11 +487,9 @@ class Mind {
 
         $columns = array_keys($arr);
 
-
         foreach ($columns as $column){
 
             if(!$this->is_column($tblname, $column)){
-                echo "Error: You cannot add data to the non-existing column named (".$column.").\n";
                 return false;
             }
         }
@@ -613,13 +515,16 @@ class Mind {
     public function update($tblname, $arr, $id, $special=null){
 
         if(!$this->is_table($tblname)){
-          return false;
+            return false;
+        }
+
+        if(!is_array($arr)){
+            return false;
         }
 
         if(empty($special)){
 
             $special = $this->increments($tblname);
-
             if(empty($special)){
                 return false;
             }
@@ -631,10 +536,6 @@ class Mind {
         }
 
         foreach ($arr as $name => $value) {
-
-            if(!$this->is_column($tblname, $name)){
-              return false;
-            }
 
             $field = $name.'=\''.$value.'\'';
             $newfield = $special.'=\''.$id.'\'';
@@ -648,7 +549,6 @@ class Mind {
      * Record delete.
      *
      * @param string   $tblname
-     * @param mixed   $arr
      * @param mixed   $id
      * @param mixed   $special
      * @return  bool
@@ -673,27 +573,28 @@ class Mind {
 
         if(is_array($id)){
 
-          foreach ($id as $key => $value) {
-              if(!$this->do_have($tblname, $value, $special)){
-                return false;
-              }
-              $ids[] = $value;
-          }
+            foreach ($id as $key => $value) {
+                $ids[] = $value;
+            }
 
         } else {
 
-          if(!$this->do_have($tblname, $id, $special)){
-            return false;
-          }
-
-          $ids[] = $id;
+            $ids[] = $id;
 
         }
 
         foreach ($ids as $id) {
 
-          $sql = 'DELETE FROM '.$tblname.' WHERE '.$special.'='.$id;
-          $this->prepare($sql);
+            if(!$this->do_have($tblname, $id, $special)){
+                return false;
+            }
+
+            if(!$this->is_column($tblname, $special)){
+                return false;
+            }
+
+            $sql = 'DELETE FROM '.$tblname.' WHERE '.$special.'='.$id;
+            $this->prepare($sql);
 
         }
 
@@ -709,6 +610,7 @@ class Mind {
      * */
     public function get($tblname, $arr=null){
 
+
         $column  = '*';
         $special = '';
         $keyword = '';
@@ -720,8 +622,8 @@ class Mind {
         }
 
         $sql = 'SHOW COLUMNS FROM '.$tblname;
-        $query = $this->prepare($sql);
 
+        $query = $this->prepare($sql);
         if(!empty($query)){
             while($row = $query->fetch_assoc()){
                 $columns[] = $row['Field'];
@@ -760,9 +662,9 @@ class Mind {
                 if(is_array($keyword)){
                     foreach ($keyword as $key => $value) {
 
-                        $xcontent   = ' LIKE \''.$p.$value.$p.'\' OR ';
-                        $ycontent   = ' LIKE \''.$p.$value.$p.'\'';
-                        $content[]  = implode($xcontent, $columns).$ycontent;
+                        $xcontent = ' LIKE \''.$p.$value.$p.'\' OR ';
+                        $ycontent = ' LIKE \''.$p.$value.$p.'\'';
+                        $content[] = implode($xcontent, $columns).$ycontent;
                     }
 
                     $special = 'WHERE '.implode(' OR ', $content);
@@ -774,10 +676,20 @@ class Mind {
                 }
             }
 
+            if(!empty($arr['search']['equal']) AND is_array($arr['search']['equal'])){
+                $special = 'WHERE ';
+                $content = array();
+                foreach ($arr['search']['equal'] as $name => $value) {
+
+                    $xcontent   = $name.'=\''.$value.'\'';
+                    $content[]  = $xcontent;
+                }
+                $special   .= implode(' AND ', $content);
+            }
+
             if(!empty($arr['sort'])){
 
                 list($columname, $sort) = explode(':', $arr['sort']);
-
                 if(ctype_alpha($sort) AND in_array($sort, array('ASC','DESC'))){
                     $special .= ' ORDER BY '.$columname.' '.$sort;
                 }
@@ -818,6 +730,7 @@ class Mind {
 
             if(isset($arr['format'])){
                 switch ($arr['format']) {
+
                     case 'json':
                         $getdata = json_encode($getdata);
                         break;
@@ -1127,7 +1040,7 @@ class Mind {
     /**
      * URL verification.
      *
-     * @param string   $str
+     * @param string   $url
      * @return  bool
      * */
     public function is_url($url){
@@ -1658,6 +1571,8 @@ class Mind {
             }
         }
     }
+
+
 
 }
 ?>
