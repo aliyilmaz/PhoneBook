@@ -1,7 +1,9 @@
 <?php
+
 $tblname = 'phonebook';
+$record = array();
 if (
-    $this->do_have($tblname, $this->post['id'], 'id')
+$this->do_have($tblname, $this->post['id'], 'id')
 ){
     $arr = array(
         'search'=>array(
@@ -10,14 +12,6 @@ if (
         )
     );
     $record = $this->get($tblname, $arr);
-
-    if($this->post['status']==true){
-        $this->delete($tblname, $this->post['id']);
-        $this->redirect();
-    }
-
 } else {
     $this->redirect();
 }
-
-?>
