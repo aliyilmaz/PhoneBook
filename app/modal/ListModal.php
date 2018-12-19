@@ -4,6 +4,7 @@ $tblname = 'phonebook';
 $limit = 5;
 $sort = 'DESC';
 $keyword = '';
+$column  = 'id';
 $columns = array();
 
 if(!empty($this->post['limit'])){
@@ -26,16 +27,20 @@ if(!empty($this->post['column'])){
     }
 }
 
+if(count($columns)==1){
+    $column = $columns[0];
+}
+
 $arr = array(
     'search'=>array(
-        'column'=>$columns,
-        'keyword'=>$keyword,
-        'where'=>'all'
+        'column'    =>  $columns,
+        'keyword'   =>  $keyword,
+        'where'     =>  'all'
     ),
     'limit'=>array(
-        'end'=>$limit
+        'end'   =>  $limit
     ),
-    'sort'=>'id:'.$sort
+    'sort'  =>  $column.':'.$sort
 );
 
 $list = $this->get($tblname, $arr);
