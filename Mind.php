@@ -1407,6 +1407,7 @@ class Mind {
         }
 
         $request = str_replace($this->baseurl, '', $_SERVER['REQUEST_URI']);
+        $tfields    = array();
         $fields     = array();
 
         if(!empty($uri)){
@@ -1461,6 +1462,8 @@ class Mind {
 
             if($uri == $this->baseurl){
                 $this->mindload($file, $cache);
+                exit();
+            } else {
                 exit();
             }
         }
