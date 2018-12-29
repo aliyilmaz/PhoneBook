@@ -5,7 +5,7 @@ namespace Mind;
 /**
  *
  * @package    Mind
- * @version    Release: 2.3
+ * @version    Release: 2.3.1
  * @license    GNU General Public License v3.0
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for Php.
@@ -185,6 +185,40 @@ class Mind {
         }
 
         return $sql;
+    }
+
+    /**
+     * Parameter parser.
+     *
+     * @param string $str
+     * @return mixed|bool
+     *
+     */
+    public function pGenerator($str=null){
+
+        $Result = array();
+        if(!is_null($str)){
+
+            if(strstr($str, ':')){
+                $strExplode = array_filter(explode(':', trim($str, ':')));
+                if(count($strExplode) == 2){
+                    list($filePath, $funcPar) = $strExplode;
+                    $Result['name'] = $filePath;
+
+                    if(strstr($funcPar, '@')){
+                        $funcExplode = array_filter(explode('@', trim($funcPar, '@')));
+                    } else {
+                        $funcExplode = array($funcPar);
+                    }
+                    if(!empty($funcExplode)){
+                        $Result['params'] = $funcExplode;
+                    }
+                }
+            } else {
+                $Result['name'] = $str;
+            }
+        }
+        return $Result;
     }
 
     /**
@@ -464,14 +498,22 @@ class Mind {
             return false;
         }
 
-        $columns = array_keys($arr);
+        if(!empty($arr[0])){
+            foreach ($arr as $key => $row){
+                if(!$this->insert($tblname, $row)){
+                    return false;
+                }
+            }
+        } else {
+            $columns = array_keys($arr);
 
-        $column = implode(',', $columns);
-        $values = '\''.implode('\',\'', array_values($arr)).'\'';
-        $sql = 'INSERT INTO '.$tblname.'('.$column.') VALUES ('.$values.')';
+            $column = implode(',', $columns);
+            $values = '\''.implode('\',\'', array_values($arr)).'\'';
+            $sql = 'INSERT INTO '.$tblname.'('.$column.') VALUES ('.$values.')';
 
-        if(!$this->prepare($sql)){
-            return false;
+            if(!$this->prepare($sql)){
+                return false;
+            }
         }
 
         return true;
@@ -1023,6 +1065,25 @@ class Mind {
     }
 
     /**
+     * Json control of a string
+     *
+     * @param string $schema
+     * @return bool
+     **/
+    public function is_json($schema){
+
+        if(is_null($schema) OR is_array($schema)) {
+            return false;
+        }
+
+        if(json_decode($schema)){
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Path information.
      *
      * @param string   $str
@@ -1170,40 +1231,6 @@ class Mind {
     }
 
     /**
-     * Parameter parser.
-     *
-     * @param string $str
-     * @return mixed|bool
-     *
-     */
-    public function pGenerator($str=null){
-
-        $Result = array();
-        if(!is_null($str)){
-
-            if(strstr($str, ':')){
-                $strExplode = array_filter(explode(':', trim($str, ':')));
-                if(count($strExplode) == 2){
-                    list($filePath, $funcPar) = $strExplode;
-                    $Result['name'] = $filePath;
-
-                    if(strstr($funcPar, '@')){
-                        $funcExplode = array_filter(explode('@', trim($funcPar, '@')));
-                    } else {
-                        $funcExplode = array($funcPar);
-                    }
-                    if(!empty($funcExplode)){
-                        $Result['params'] = $funcExplode;
-                    }
-                }
-            } else {
-                $Result['name'] = $str;
-            }
-        }
-        return $Result;
-    }
-
-    /**
      * Permanent connection.
      *
      * @param string   $str
@@ -1295,7 +1322,7 @@ class Mind {
             $replacements = $options['replacements'];
         }
 
-        if(!$defaults['transliterate']){
+        if(!$options['transliterate']){
             $char_map = array();
         }
 
@@ -1310,6 +1337,7 @@ class Mind {
         }
 
         $options = array_merge($defaults, $options);
+
         $str = preg_replace('/[^\p{L}\p{Nd}]+/u', $options['delimiter'], $str);
         $str = preg_replace('/(' . preg_quote($options['delimiter'], '/') . '){2,}/', '$1', $str);
         $str = mb_substr($str, 0, ($options['limit'] ? $options['limit'] : mb_strlen($str, 'UTF-8')), 'UTF-8');
@@ -1407,7 +1435,6 @@ class Mind {
         }
 
         $request = str_replace($this->baseurl, '', $_SERVER['REQUEST_URI']);
-        $tfields    = array();
         $fields     = array();
 
         if(!empty($uri)){
@@ -1463,8 +1490,6 @@ class Mind {
             if($uri == $this->baseurl){
                 $this->mindload($file, $cache);
                 exit();
-            } else {
-                exit();
             }
         }
     }
@@ -1516,9 +1541,9 @@ class Mind {
             foreach ($files as $file){
 
                 if(!empty($file['name'])){
-
+                    $xdat       = date('d-m-Y g:i:s').gettimeofday();
                     $ext        = $this->info($file['name'], 'extension');
-                    $newpath    = $path.'/'.md5(date('d-m-Y g:i:s').gettimeofday()['usec']).'.'.$ext;
+                    $newpath    = $path.'/'.md5($xdat['usec']).'.'.$ext;
                     move_uploaded_file($file['tmp_name'], $newpath);
                     $response[] = $newpath;
 
