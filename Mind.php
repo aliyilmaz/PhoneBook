@@ -5,7 +5,7 @@ namespace Mind;
 /**
  *
  * @package    Mind
- * @version    Release: 2.3.1
+ * @version    Release: 2.3.2
  * @license    GNU General Public License v3.0
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for Php.
@@ -38,13 +38,7 @@ class Mind {
 
         $this->request();
 
-        if(
-            empty(
-            $_SESSION['timezone']
-            ) OR in_array(
-                $_SESSION['timezone'], $this->timezones()
-            )
-        ){
+        if(empty($_SESSION['timezone']) OR in_array($_SESSION['timezone'], $this->timezones())){
             $_SESSION['timezone'] = $this->timezone;
         }
 
@@ -148,8 +142,9 @@ class Mind {
                 $columnType = 'small';
             }
 
+            if(is_null($columnValue) AND $columnType =='string'){ $columnValue = 255; }
             if(is_null($columnValue) AND $columnType =='decimal') { $columnValue = 6.2; }
-            if(is_null($columnValue)){ $columnValue = 11; }
+            if(is_null($columnValue) AND $columnType =='int' OR $columnType =='increments'){ $columnValue = 11; }
 
             $first = '';
             $prefix = '';
@@ -157,7 +152,6 @@ class Mind {
                 $first = 'FIRST';
                 $prefix = 'ADD COLUMN ';
             }
-
 
             switch ($columnType){
                 case 'int':
@@ -752,17 +746,24 @@ class Mind {
 
         if(!empty($tblname) AND !empty($str)){
 
-            $arr = array(
-                'search'=> array(
-                    'keyword' => $this->filter($str)
-                )
-            );
-
-            if(!empty($column)){
+            if(!is_array($str)){
+                $arr = array(
+                    'search'=> array(
+                        'keyword' => $str
+                    )
+                );
+                if(!empty($column)){
+                    $arr = array(
+                        'search' =>array(
+                            'keyword' => $str,
+                            'column' => $column
+                        )
+                    );
+                }
+            } else {
                 $arr = array(
                     'search' =>array(
-                        'keyword' => $this->filter($str),
-                        'column' => $this->filter($column)
+                        'equal'=> $str
                     )
                 );
             }
@@ -1093,6 +1094,11 @@ class Mind {
     public function info($str, $type){
 
         $object = pathinfo($str);
+
+        if($type == 'extension'){
+           return strtolower($object[$type]);
+        }
+
         return $object[$type];
     }
 
@@ -1504,14 +1510,14 @@ class Mind {
     public function write($str, $path) {
 
         if(is_array($str)){
-            $content 	= implode(':', $str);
+            $content    = implode(':', $str);
         } else {
             $content    = $str;
         }
 
         if(isset($content)){
 
-            $writedb 		= fopen($path, "a+");
+            $writedb        = fopen($path, "a+");
             fwrite($writedb, $content."\r\n");
             fclose($writedb);
 
@@ -1530,31 +1536,30 @@ class Mind {
      * */
     public function upload($files, $path){
 
-        $response = array();
+        $result = array();
 
-        if(is_dir($path)){
-
-            if(!empty($files) AND !isset($files[0])){
-                $files = array($files);
-            }
-
-            foreach ($files as $file){
-
-                if(!empty($file['name'])){
-                    $xdat       = date('d-m-Y g:i:s').gettimeofday();
-                    $ext        = $this->info($file['name'], 'extension');
-                    $newpath    = $path.'/'.md5($xdat['usec']).'.'.$ext;
-                    move_uploaded_file($file['tmp_name'], $newpath);
-                    $response[] = $newpath;
-
-                }
-
-            }
-
-            return $response;
+        if(isset($files['name'])){
+            $files = array($files);
         }
 
-        return false;
+        foreach ($files as $file) {
+
+            #Path syntax correction for Windows.
+            $tmp_name = str_replace('\\\\', '\\', $file['tmp_name']);
+            $file['tmp_name'] = $tmp_name;
+
+            $xtime      = gettimeofday();
+            $xdat       = date('d-m-Y g:i:s').$xtime['usec'];
+            $ext        = $this->info($file['name'], 'extension');
+            $newpath    = $path.'/'.md5($xdat).'.'.$ext;
+
+            move_uploaded_file($file['tmp_name'], $newpath);
+
+            $result[]   = $newpath;
+
+        }
+
+        return $result;
     }
 
     /**
@@ -1575,8 +1580,8 @@ class Mind {
 
             $arrContextOptions = stream_context_create(array(
                 'ssl' => array(
-                    'verify_peer' 		=> false,
-                    'verify_peer_name' 	=> false,
+                    'verify_peer'       => false,
+                    'verify_peer_name'  => false,
                 )
             ));
 
