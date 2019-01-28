@@ -191,6 +191,7 @@ class Mind {
     public function pGenerator($str=null){
 
         $Result = array();
+        
         if(!is_null($str)){
 
             if(strstr($str, ':')){
