@@ -5,7 +5,7 @@ namespace Mind;
 /**
  *
  * @package    Mind
- * @version    Release: 2.3.2
+ * @version    Release: 2.3.3
  * @license    GNU General Public License v3.0
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for Php.
@@ -29,6 +29,7 @@ class Mind {
     public  $post;
     public  $baseurl;
     public  $timezone    =  'Europe/Istanbul';
+    public  $errorfile   =  'app/views/errors/404';
 
     public function __construct($conf=array()){
 
@@ -191,7 +192,6 @@ class Mind {
     public function pGenerator($str=null){
 
         $Result = array();
-        
         if(!is_null($str)){
 
             if(strstr($str, ':')){
@@ -1486,20 +1486,38 @@ class Mind {
             }
         }
 
+        $error_status = false;
+
         if(!empty($request)){
 
-            if(strstr($request, $uri)){
-                $this->mindload($file, $cache);
-                exit();
+            if(!empty($params)){
+                $uri .='/'.implode('/', $params);
             }
-        } else {
 
-            if($uri == $this->baseurl){
+            if($request == $uri OR trim($request, '/') == $uri){
                 $this->mindload($file, $cache);
                 exit();
             }
+
+            if(!strstr($uri, trim($request, '/')) AND $uri == $request) {
+                $error_status = true;
+            } 
+
+        } else {
+            if($uri == $this->baseurl) {
+                $this->mindload($file, $cache);
+                exit();
+            }
+
         }
+
+        if($error_status){
+            $this->mindload($this->errorfile);
+            exit();
+        }
+
     }
+
 
     /**
      * File writer.
