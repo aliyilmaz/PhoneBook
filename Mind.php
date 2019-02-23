@@ -1483,7 +1483,7 @@ class Mind {
                     } 
                 }
             } else {
-                $this->post = $params;
+                $this->post = array_diff($params, array('', ' '));
             }
         }
 
@@ -1493,7 +1493,7 @@ class Mind {
                 $uri .='/'.implode('/', $params);
             }
 
-            if($request == $uri OR trim($request, '/') == $uri){
+            if($request == $uri OR trim($request, '/') == trim($uri, '/')){
                 $this->error_status = false;
                 $this->mindload($file, $cache);
                 exit();
