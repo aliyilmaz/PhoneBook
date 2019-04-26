@@ -1,18 +1,16 @@
 <?php
 
-namespace Mind;
-
 /**
  *
  * @package    Mind
- * @version    Release: 2.3.4
- * @license    GNU General Public License v3.0
+ * @version    Release: 2.3.5
+ * @license    GPLv3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
- * @category   Php Framework, Design pattern builder for Php.
+ * @category   Php Framework, Design pattern builder for PHP.
  * @link       https://github.com/aliyilmaz/Mind
  *
- *
  */
+
 class Mind {
 
     private $conn;
