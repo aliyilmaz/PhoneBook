@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 2.3.5
+ * @version    Release: 2.3.6
  * @license    GPLv3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -1168,7 +1168,9 @@ class Mind {
         if(empty($url)){
             $url = $this->baseurl;
         } else {
-            $url = $this->baseurl.$url;
+            if(!$this->is_url($url)){
+                $url = $this->baseurl.$url;
+            } 
         }
 
         header('Location: '.$url);
