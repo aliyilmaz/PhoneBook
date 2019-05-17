@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 2.3.6
+ * @version    Release: 2.3.7
  * @license    GPLv3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -1096,7 +1096,7 @@ class Mind {
         $object = pathinfo($str);
 
         if($type == 'extension'){
-           return strtolower($object[$type]);
+            return strtolower($object[$type]);
         }
 
         return $object[$type];
@@ -1170,7 +1170,7 @@ class Mind {
         } else {
             if(!$this->is_url($url)){
                 $url = $this->baseurl.$url;
-            } 
+            }
         }
 
         header('Location: '.$url);
@@ -1482,7 +1482,7 @@ class Mind {
 
                     if(!empty($params[$key]) OR $params[$key] == '0'){
                         $this->post[$field] = $params[$key];
-                    } 
+                    }
                 }
             } else {
                 $this->post = array_diff($params, array('', ' '));
@@ -1615,6 +1615,80 @@ class Mind {
                 return $result;
             }
         }
+    }
+
+    /**
+     * File downloader
+     *
+     * @param $links
+     * @param array $opt
+     * @return array|bool
+     */
+    public function download($links, $opt=array('path'=>'download'))
+    {
+
+        $path = './'.$opt['path'];
+
+        $result = array();
+
+        if(empty($links)){
+            return false;
+        }
+
+        if(!is_array($links)){
+            $links = array($links);
+        }
+
+        foreach($links as $link){
+
+            $link_path = parse_url($this->info($link, 'dirname'));
+            $destination = $path.urldecode($link_path['path']);
+            $other_path = urldecode($this->info($link, 'basename'));
+
+            if(!is_dir($destination)){
+                mkdir($destination, 0777, true);
+            }
+
+            if(!file_exists($destination.'/'.$other_path)){
+                copy($link, $destination.'/'.$other_path);
+            }
+
+            $remote_file = $this->remote_filesize($link);
+            $local_file = filesize($destination.'/'.$other_path);
+
+            if(file_exists($destination.'/'.$other_path)){
+
+                if($remote_file != $local_file){
+                    unlink($destination.'/'.$other_path);
+                    copy($link, $destination.'/'.$other_path);
+
+                }
+            }
+
+            $result[] = $destination.'/'.$other_path;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Learns the size of the remote file.
+     *
+     * @param $url
+     * @return mixed
+     */
+    public function remote_filesize($url){
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, TRUE);
+        curl_setopt($ch, CURLOPT_NOBODY, TRUE);
+
+        curl_exec($ch);
+        $size = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+
+        curl_close($ch);
+        return $size;
     }
 
     public function __destruct()
