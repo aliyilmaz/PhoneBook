@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <title>Page Not Found</title>
-    <base href="<?=$this->baseurl;?>">
+    <base href="<?=$this->base_url;?>">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 

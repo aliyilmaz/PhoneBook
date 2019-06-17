@@ -1,3 +1,5 @@
+<?php $this->mindLoad('app/views/layout/header'); ?>
+
 <form action="add" method="post">
 
     <div class="form-group">
@@ -23,7 +25,9 @@
         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Clear
     </button>
 
-    <a href="<?=$this->baseurl;?>" class="btn btn-default btn-xs btn-warning">
+    <a href="<?=$this->base_url;?>" class="btn btn-default btn-xs btn-warning">
         <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Cancel
     </a>
 </form>
+
+<?php $this->mindLoad('app/views/layout/footer'); ?>

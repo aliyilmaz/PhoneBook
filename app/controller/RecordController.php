@@ -20,7 +20,7 @@ class RecordController extends Mind
                 'name' => $this->post['name'],
                 'phone' => $this->post['phone'],
                 'email' => $this->post['email'],
-                'created_at' => date('d-m-Y H:i:s'),
+                'created_at' => $this->timestamp,
             );
             $this->insert($this->TableName, $arr);
             $this->redirect();
@@ -39,7 +39,7 @@ class RecordController extends Mind
                 'name' => $this->post['name'],
                 'phone' => $this->post['phone'],
                 'email' => $this->post['email'],
-                'updated_at' => date('d-m-Y H:i:s'),
+                'updated_at' => $this->timestamp,
             );
             $this->update($this->TableName, $arr, $this->post['id']);
             $this->redirect();

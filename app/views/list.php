@@ -1,3 +1,5 @@
+<?php $this->mindLoad('app/views/layout/header'); ?>
+
 <form action="list" method="post">
     <div class="row">
        <div class="col-sm-1">
@@ -24,8 +26,9 @@
         </div>
         <div class="col-sm-3">
             <div class="form-group">
-                <label for="keyword">Keyword</label>
-                <input type="text" name="keyword" class="form-control">
+                <label for="keyword">Keyword
+                    <input class="form-control" name="keyword" type="text">
+                </label>
             </div>
         </div>
         <div class="col-md-5">
@@ -43,11 +46,11 @@
         <thead role="rowgroup">
         <tr role="row">
             <th role="columnheader"># </th>
-            <th role="columnheader">Name <input type="checkbox" name="column[]" value="name"></th>
-            <th role="columnheader">Phone <input type="checkbox" name="column[]" value="phone"></th>
-            <th role="columnheader">Email <input type="checkbox" name="column[]" value="email"></th>
-            <th role="columnheader">Created_At <input type="checkbox" name="column[]" value="created_at"></th>
-            <th role="columnheader">Updated_At <input type="checkbox" name="column[]" value="updated_at"></th>
+            <th role="columnheader">Name <input type="checkbox" name="columns[]" value="name"></th>
+            <th role="columnheader">Phone <input type="checkbox" name="columns[]" value="phone"></th>
+            <th role="columnheader">Email <input type="checkbox" name="columns[]" value="email"></th>
+            <th role="columnheader">Created_At <input type="checkbox" name="columns[]" value="created_at"></th>
+            <th role="columnheader">Updated_At <input type="checkbox" name="columns[]" value="updated_at"></th>
             <th role="columnheader">#</th>
         </tr>
         </thead>
@@ -73,3 +76,5 @@
         </tbody>
     </table>
 </form>
+
+<?php $this->mindLoad('app/views/layout/footer'); ?>
