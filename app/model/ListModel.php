@@ -31,7 +31,7 @@ if(count($columns)==1){
     $column = $columns[0];
 }
 
-$arr = array(
+$options = array(
     'search'=>array(
         'column'    =>  $columns,
         'keyword'   =>  $keyword,
@@ -43,5 +43,5 @@ $arr = array(
     'sort'  =>  $column.':'.$sort
 );
 
-$list = $this->get($tblname, $arr);
+$list = $this->getData($tblname, $options);
 ?>
