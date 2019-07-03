@@ -5,13 +5,15 @@ $record = array();
 if (
 $this->do_have($tblname, $this->post['id'], 'id')
 ){
-    $arr = array(
+    $options = array(
         'search'=>array(
             'column'=>'id',
             'keyword'=>$this->post['id']
         )
     );
-    $record = $this->get($tblname, $arr);
-} else {
+    $record = $this->getData($tblname, $options);
+}
+
+if(empty($record)){
     $this->redirect();
 }
