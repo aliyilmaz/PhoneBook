@@ -1326,10 +1326,10 @@ class Mind extends PDO
 
     /**
      * Permanent connection.
-     *
+     * 
      * @param $str
      * @param array $options
-     * @return mixed|string|string[]|null
+     * @return string
      */
     public function permalink($str, $options = array()){
 
@@ -1414,7 +1414,7 @@ class Mind extends PDO
             $replacements = $options['replacements'];
         }
 
-        if(!empty($options['transliterate']) AND !$options['transliterate']){
+        if(isset($options['transliterate']) AND !$options['transliterate']){
             $char_map = array();
         }
 
@@ -1422,7 +1422,6 @@ class Mind extends PDO
 
         if(!empty($options['replacements']) AND is_array($options['replacements'])){
             foreach ($options['replacements'] as $objName => $val) {
-
                 $str = str_replace($objName, $val, $str);
 
             }
@@ -1486,7 +1485,7 @@ class Mind extends PDO
      * Learns the size of the remote file.
      *
      * @param $url
-     * @return mixed
+     * @return int|mixed
      */
     public function remoteFileSize($url){
         $ch = curl_init($url);
@@ -1496,9 +1495,15 @@ class Mind extends PDO
         curl_setopt($ch, CURLOPT_NOBODY, TRUE);
 
         curl_exec($ch);
+
+        $response_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         $size = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
 
         curl_close($ch);
+
+        if(!in_array($response_code, array('200'))){
+            return -1;
+        }
         return $size;
     }
 
@@ -1749,12 +1754,17 @@ class Mind extends PDO
 
             $this->post = array();
 
-            if(!empty($fields)){
+
+            if(!empty($fields) AND !empty($params)){
 
                 foreach ($fields as $key => $field) {
 
-                    if(!empty($params[$key]) OR $params[$key] == '0'){
-                        $this->post[$field] = $params[$key];
+                    if(isset($params[$key])){
+
+                        if(!empty($params[$key]) OR $params[$key] == '0'){
+                            $this->post[$field] = $params[$key];
+                        }
+
                     }
                 }
             } else {
@@ -1854,18 +1864,14 @@ class Mind extends PDO
      * File downloader.
      *
      * @param $links
-     * @param array $opt
+     * @param null $opt
      * @return array
      */
-    public function download($links, $opt = array('path'=>'download'))
+    public function download($links, $opt = null)
     {
 
-        $path = '';
         $result = array();
-
-        if(!empty($opt['path'])){
-            $path .= $opt['path'];
-        }
+        $nLinks = array();
 
         if(empty($links)){
             return $result;
@@ -1875,42 +1881,69 @@ class Mind extends PDO
             $links = array($links);
         }
 
-        foreach($links as $link){
+        foreach($links as $link) {
 
-            $link_path = parse_url($this->info($link, 'dirname'));
+            if($this->is_url($link)){
+                if($this->remoteFileSize($link)>1){
+                    $nLinks[] = $link;
+                }
+            }
+
+            if(!$this->is_url($link)){
+                if(!strstr($link, '://')){
+
+                    if(file_exists($link)){
+                        $nLinks[] = $link;
+                    }
+
+                }
+            }
+
+        }
+
+        if(count($nLinks) != count($links)){
+            return $result;
+        }
+
+        $path = '';
+        if(!empty($opt['path'])){
+            $path .= $opt['path'];
+
+            if(!is_dir($path)){
+                mkdir($path, 0777, true);
+            }
+        } else {
+            $path .= './download';
+        }
+
+        foreach ($nLinks as $nLink) {
 
             $destination = $path;
 
-            if(isset($link_path['path'])){
-                $destination .= urldecode($link_path['path']);
-            }
-
-            $other_path = urldecode($this->info($link, 'basename'));
+            $other_path = urldecode($this->info($nLink, 'basename'));
 
             if(!is_dir($destination)){
                 mkdir($destination, 0777, true);
             }
 
-            if(!file_exists($destination.'/'.$other_path)){
-                copy($link, $destination.'/'.$other_path);
-            }
-
-            $remote_file = $this->remoteFileSize($link);
-            $local_file = filesize($destination.'/'.$other_path);
-
             if(file_exists($destination.'/'.$other_path)){
 
+                $remote_file = $this->remoteFileSize($nLink);
+                $local_file = filesize($destination.'/'.$other_path);
+    
                 if($remote_file != $local_file){
                     unlink($destination.'/'.$other_path);
-                    copy($link, $destination.'/'.$other_path);
+                    copy($nLink, $destination.'/'.$other_path);
 
                 }
+            } else {
+                copy($nLink, $destination.'/'.$other_path);
             }
 
             $result[] = $destination.'/'.$other_path;
         }
 
-        return $result;
+    return $result;
     }
 
     /**
