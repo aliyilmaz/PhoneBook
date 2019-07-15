@@ -1,42 +1,41 @@
 <?php
 $tblname = 'phonebook';
 
+$list = array();
 $limit = 5;
 $sort = 'DESC';
 $keyword = '';
-$column  = 'id';
+$column  = $this->increments('phonebook');
 $columns = array();
+$patterns = array();
 
-if(!empty($this->post['limit'])){
-    $limit = $this->post['limit'];
+if(empty($this->post['keyword'])){
+    $this->post['keyword'] = '';
 }
+$patterns['keyword'] = $this->post['keyword'];
 
-if(!empty($this->post['sort'])){
-    $sort = $this->post['sort'];
-}
-
-if(!empty($this->post['keyword'])){
-    $keyword = $this->post['keyword'];
-}
-
-if(!empty($this->post['column'])){
-    foreach ($this->post['column'] as $column){
-        if($this->is_column($tblname, $column)){
-            $columns[] = $column;
-        }
+$model = array();
+if(!empty($this->post['columns'])){
+    foreach ($this->post['columns'] as $column){
+        $model[$column] = '%'.$this->post['keyword'].'%';
     }
 }
+$patterns['or'] = $model;
 
-if(count($columns)==1){
-    $column = $columns[0];
+if(!empty($model)){
+    $patterns['columns'] = array_keys($model);
+}
+
+if(empty($this->post['limit'])){
+    $this->post['limit'] = $limit;
+}
+
+if(empty($this->post['sort'])){
+    $this->post['sort'] = $sort;
 }
 
 $options = array(
-    'search'=>array(
-        'column'    =>  $columns,
-        'keyword'   =>  $keyword,
-        'where'     =>  'all'
-    ),
+    'search'=> $patterns,
     'limit'=>array(
         'end'   =>  $limit
     ),
