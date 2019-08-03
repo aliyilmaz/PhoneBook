@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 3.0.1
+ * @version    Release: 3.0.2
  * @license    GPLv3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -78,12 +78,22 @@ class Mind extends PDO
         error_reporting(E_ALL);
         ini_set('display_errors', 1);
 
-        set_time_limit(0);
+        if(strpos(ini_get('disable_functions'), 'set_time_limit') === false){
+            set_time_limit(0);
+        }
+
         ini_set('memory_limit', '-1');
 
         date_default_timezone_set($this->timezone);
         $this->timestamp = date("d-m-Y H:i:s");
-        $this->base_url = dirname($_SERVER['SCRIPT_NAME']).'/';
+
+
+        $baseDir = $this->get_absolute_path(dirname($_SERVER['SCRIPT_NAME']));
+        if(empty($baseDir)){
+            $this->base_url = '/';
+        } else {
+            $this->base_url = '/'.$baseDir.'/';
+        }
 
     }
 
@@ -1712,7 +1722,12 @@ class Mind extends PDO
             return false;
         }
 
-        $request = str_replace($this->base_url, '', $_SERVER['REQUEST_URI']);
+        if($this->base_url != '/'){
+            $request = str_replace($this->base_url, '', $_SERVER['REQUEST_URI']);
+        } else {
+            $request = trim($_SERVER['REQUEST_URI'], '/');
+        }
+
         $fields     = array();
 
         if(!empty($uri)){
@@ -1977,4 +1992,18 @@ class Mind extends PDO
         return $result;
     }
 
+    public function get_absolute_path($path) {
+        $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
+        $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
+        $absolutes = array();
+        foreach ($parts as $part) {
+            if ('.' == $part) continue;
+            if ('..' == $part) {
+                array_pop($absolutes);
+            } else {
+                $absolutes[] = $part;
+            }
+        }
+        return implode(DIRECTORY_SEPARATOR, $absolutes);
+    }
 }
