@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 3.0.3
+ * @version    Release: 3.1.3
  * @license    GPLv3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -30,6 +30,8 @@ class Mind extends PDO
 
     public  $post;
     public  $base_url;
+    public  $page_current   =   '';
+    public  $page_back      =   '';
     public  $timezone       =  'Europe/Istanbul';
     public  $timestamp;
     public  $error_status   =  false;
@@ -40,7 +42,7 @@ class Mind extends PDO
      * @param array $conf
      */
     public function __construct($conf=array()){
-
+        ob_start();
         if(isset($conf['host'])){
             $this->host = $conf['host'];
         }
@@ -85,16 +87,21 @@ class Mind extends PDO
         ini_set('memory_limit', '-1');
 
         date_default_timezone_set($this->timezone);
-        $this->timestamp = date("d-m-Y H:i:s");
-
+        $this->timestamp = date("Y-m-d H:i:s");
 
         $baseDir = $this->get_absolute_path(dirname($_SERVER['SCRIPT_NAME']));
+
         if(empty($baseDir)){
             $this->base_url = '/';
         } else {
             $this->base_url = '/'.$baseDir.'/';
         }
 
+        if(isset($_SERVER['HTTP_REFERER'])){
+            $this->page_back = $_SERVER['HTTP_REFERER'];
+        } else {
+            $this->page_back = $this->page_current;
+        }
     }
 
     public function __destruct()
@@ -259,10 +266,10 @@ class Mind extends PDO
 
             try{
 
-                $sql = "CREATE TABLE";
-                $sql .= " ".$tblName."( ";
-                $sql .= implode(',', $this->cGenerator($scheme));
-                $sql .= ")";
+                $sql = "CREATE TABLE `".$tblName."` ";
+                $sql .= "(\n\t";
+                $sql .= implode(",\n\t", $this->cGenerator($scheme));
+                $sql .= "\n) ENGINE = INNODB;";
 
                 if(!$this->query($sql)){
                     return false;
@@ -290,9 +297,9 @@ class Mind extends PDO
 
             try{
 
-                $sql = "ALTER TABLE";
-                $sql .= " ".$tblName." ";
-                $sql .= implode(',', $this->cGenerator($scheme, 'columnCreate'));
+                $sql = "ALTER TABLE\n";
+                $sql .= "\t`".$tblName."`\n";
+                $sql .= implode(",\n\t", $this->cGenerator($scheme, 'columnCreate'));
 
                 if(!$this->query($sql)){
                     return false;
@@ -885,19 +892,19 @@ class Mind extends PDO
 
         $output = $this->getData($tblName, $scheme);
 
-        if (count($output) > 1) {
-            return $output;
-        } else {
-            $columns = array_keys($output[0]);
-
-            if(count($columns) > 1){
-                return $output[0];
+        if(isset($output[0]) AND count($output)==1){
+            if(!empty($column)){
+                if($this->is_column($tblName, $column)){
+                    $output = $output[0][$column];
+                } else {
+                    $output = $output[0];
+                }
             } else {
-                $column = $columns[0];
-                return $output[0][$column];
+                $output = $output[0];
             }
         }
 
+        return $output;
     }
 
     /**
@@ -1227,10 +1234,46 @@ class Mind extends PDO
     public function is_url($url=null){
 
         if(!isset($url)){
-            $url = '';
+            return false;
         }
 
-        return preg_match('/^(http|https|www):\\/\\/localhost|[a-z0-9_]+([\\-\\.]{1}[a-z_0-9]+)*\\.[_a-z]{2,5}' . '((:[0-9]{1,5})?\\/.*)?$/i', $url) ? true : false;
+        $temp_string = (!preg_match('#^(ht|f)tps?://#', $url)) // check if protocol not present
+            ? 'http://' . $url // temporarily add one
+            : $url; // use current
+
+        if ( filter_var($temp_string, FILTER_VALIDATE_URL)) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    /**
+     * HTTP checking.
+     *
+     * @param $url
+     * @return bool
+     */
+    public function is_http($url){
+        if (substr($url, 0, 7) == "http://"){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * HTTPS checking.
+     * @param $url
+     * @return bool
+     */
+    public function is_https($url){
+        if (substr($url, 0, 8) == "https://"){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -1253,13 +1296,17 @@ class Mind extends PDO
     }
 
     /**
-     * Path information.
+     * Path information
      *
      * @param $fileName
-     * @param string $type
-     * @return  string
+     * @param $type
+     * @return bool|string
      */
     public function info($fileName, $type){
+
+        if(empty($fileName) AND isset($type)){
+            return false;
+        }
 
         $object = pathinfo($fileName);
 
@@ -1285,9 +1332,7 @@ class Mind extends PDO
             }
             return $x;
         } else {
-
-            $str = filter_var($str,FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-            return preg_replace('~[\x00\x0A\x0D\x1A\x22\x27\x5C]~u', '\\\\$0', $str);
+            return htmlspecialchars($str);
         }
 
     }
@@ -1327,37 +1372,45 @@ class Mind extends PDO
      * Redirect
      *
      * @param null $url
+     * @param int $delay
      */
-    public function redirect($url=null){
+    public function redirect($url=null, $delay=0){
 
-        if(empty($url)){
-            $url = $this->base_url;
-        } else {
-            if(!$this->is_url($url)){
-                $url = $this->base_url.$url;
-            }
+        if(!$this->is_http($url) AND !$this->is_https($url) OR empty($url)){
+            $url = 'http://'.$_SERVER['SERVER_NAME'].$this->base_url.$url;
         }
 
-        header('Location: '.$url);
+        if(0 !== $delay){
+            header('refresh:'.$delay.'; url='.$url);
+        } else {
+            header('Location: '.$url);
+        }
+        ob_end_flush();
         exit();
     }
 
     /**
      * Permanent connection.
-     * 
+     *
      * @param $str
      * @param array $options
      * @return string
      */
     public function permalink($str, $options = array()){
 
+        $plainText = $str;
         $str = mb_convert_encoding((string)$str, 'UTF-8', mb_list_encodings());
         $defaults = array(
             'delimiter' => '-',
             'limit' => null,
             'lowercase' => true,
             'replacements' => array(),
-            'transliterate' => true
+            'transliterate' => true,
+            'unique' => array(
+                'delimiter' => '-',
+                'linkColumn' => 'link',
+                'titleColumn' => 'title'
+            )
         );
 
         $char_map = [
@@ -1451,8 +1504,51 @@ class Mind extends PDO
         $str = preg_replace('/(' . preg_quote($options['delimiter'], '/') . '){2,}/', '$1', $str);
         $str = mb_substr($str, 0, ($options['limit'] ? $options['limit'] : mb_strlen($str, 'UTF-8')), 'UTF-8');
         $str = trim($str, $options['delimiter']);
-        return $options['lowercase'] ? mb_strtolower($str, 'UTF-8') : $str;
+        $link = $options['lowercase'] ? mb_strtolower($str, 'UTF-8') : $str;
 
+        if(!empty($options['unique']['tableName'])){
+
+            $tableName = $options['unique']['tableName'];
+            $delimiter = $defaults['unique']['delimiter'];
+            $titleColumn = $defaults['unique']['titleColumn'];
+            $linkColumn = $defaults['unique']['linkColumn'];
+
+            if(!$this->is_table($options['unique']['tableName'])){
+                return $link;
+            } else {
+
+                if(!empty($options['unique']['delimiter'])){
+                    $delimiter = $options['unique']['delimiter'];
+                }
+                if(!empty($options['unique']['titleColumn'])){
+                    $titleColumn = $options['unique']['titleColumn'];
+                }
+                if(!empty($options['unique']['linkColumn'])){
+                    $linkColumn = $options['unique']['linkColumn'];
+                }
+
+                $data = $this->samantha($tableName, array($titleColumn => $plainText));
+
+                if(!empty($data)){
+                    $num = count($data)+1;
+                } else {
+                    $num = 1;
+                }
+
+                for ($i = 1; $i<=$num; $i++){
+
+                    if(!$this->do_have($tableName, $link, $linkColumn)){
+                        return $link;
+                    } else {
+                        if(!$this->do_have($tableName, $link.$delimiter.$i, $linkColumn)){
+                            return $link.$delimiter.$i;
+                        }
+                    }
+                }
+                return $link.$delimiter.$num;
+            }
+        }
+        return $link;
     }
 
     /**
@@ -1607,6 +1703,7 @@ class Mind extends PDO
     public function cGenerator($scheme, $funcName=null){
 
         $sql = array();
+        $column = '';
 
         foreach (array_values($scheme) as $array_value) {
 
@@ -1629,40 +1726,88 @@ class Mind extends PDO
 
             if(is_null($columnValue) AND $columnType =='string'){ $columnValue = 255; }
             if(is_null($columnValue) AND $columnType =='decimal') { $columnValue = 6.2; }
-            if(is_null($columnValue) AND $columnType =='int' OR $columnType =='increments'){ $columnValue = 11; }
-
-            $first = '';
-            $prefix = '';
-            if(!is_null($funcName) AND $funcName == 'columnCreate'){
-                $first = 'FIRST';
-                $prefix = 'ADD COLUMN ';
-            }
+            if(is_null($columnValue) AND $columnType =='int'){ $columnValue = 11; }
+            if(is_null($columnValue) AND $columnType =='increments'){ $columnValue= 11;}
 
             switch ($columnType){
                 case 'int':
-                    $sql[] = $prefix.$columnName.' int('.$columnValue.')';
+
+                    if(!is_null($funcName) AND $funcName == 'columnCreate'){
+
+                        $sql[] = 'ADD `'.$columnName.'` INT('.$columnValue.') NULL DEFAULT NULL';
+                    } else {
+
+                        $sql[] = '`'.$columnName.'` INT('.$columnValue.') NULL DEFAULT NULL';
+                    }
                     break;
                 case 'decimal':
-                    $sql[] = $prefix.$columnName.' DECIMAL('.$columnValue.')';
+
+                    if(!is_null($funcName) AND $funcName == 'columnCreate'){
+
+                        $sql[] = 'ADD `'.$columnName.'` DECIMAL('.$columnValue.') NULL DEFAULT NULL';
+                    } else {
+
+                        $sql[] = '`'.$columnName.'` DECIMAL('.$columnValue.') NULL DEFAULT NULL';
+                    }
                     break;
                 case 'string':
-                    $sql[] = $prefix.$columnName.' VARCHAR('.$columnValue.')';
+
+                    if(!is_null($funcName) AND $funcName == 'columnCreate'){
+
+                        $sql[] = 'ADD `'.$columnName.'` VARCHAR('.$columnValue.') NULL DEFAULT NULL';
+                    } else {
+
+                        $sql[] = '`'.$columnName.'` VARCHAR('.$columnValue.') NULL DEFAULT NULL';
+                    }
                     break;
                 case 'small':
-                    $sql[] = $prefix.$columnName.' TEXT';
+
+                    if(!is_null($funcName) AND $funcName == 'columnCreate'){
+
+                        $sql[] = 'ADD `'.$columnName.'` TEXT NULL DEFAULT NULL';
+                    } else {
+
+                        $sql[] = '`'.$columnName.'` TEXT NULL DEFAULT NULL';
+                    }
                     break;
                 case 'medium':
-                    $sql[] = $prefix.$columnName.' MEDIUMTEXT';
+
+                    if(!is_null($funcName) AND $funcName == 'columnCreate'){
+
+                        $sql[] = 'ADD `'.$columnName.'` MEDIUMTEXT NULL DEFAULT NULL';
+                    } else {
+
+                        $sql[] = '`'.$columnName.'` MEDIUMTEXT NULL DEFAULT NULL';
+                    }
                     break;
                 case 'large':
-                    $sql[] = $prefix.$columnName.' LONGTEXT';
+
+                    if(!is_null($funcName) AND $funcName == 'columnCreate'){
+
+                        $sql[] = 'ADD `'.$columnName.'` LONGTEXT NULL DEFAULT NULL';
+                    } else {
+
+                        $sql[] = '`'.$columnName.'` LONGTEXT NULL DEFAULT NULL';
+                    }
                     break;
                 case 'increments':
-                    $sql[] = $prefix.$columnName.' int('.$columnValue.') UNSIGNED AUTO_INCREMENT PRIMARY KEY '.$first;
+
+                    if(!is_null($funcName) AND $funcName == 'columnCreate'){
+
+                        $sql[] = 'ADD `'.$columnName.'` INT('.$columnValue.') NOT NULL AUTO_INCREMENT FIRST';
+                        $column = 'ADD PRIMARY KEY (`'.$columnName.'`)';
+                    } else {
+
+                        $sql[] = '`'.$columnName.'` INT('.$columnValue.') NOT NULL AUTO_INCREMENT';
+                        $column = 'PRIMARY KEY (`'.$columnName.'`)';
+                    }
+
                     break;
             }
         }
-
+        if(!empty($column)){
+            $sql[] = $column;
+        }
         return $sql;
     }
 
@@ -1765,18 +1910,22 @@ class Mind extends PDO
 
         $params = array();
 
-        if(strstr($request, '/')){
-
-            $step1 = str_replace($uri, '', $request);
-            $step2 = explode('/', trim($step1,'/'));
-            $step3 = array_filter($step2, 'is_string');
-            $params = array_values($step3);
-        }
-
         if($_SERVER['REQUEST_METHOD'] != 'POST'){
 
-            $this->post = array();
+            if(strstr($request, '/')){
+                $params = explode('/', $request);
+                $UriParams = explode('/', $uri);
 
+                if(count($params) >= count($UriParams)){
+                    for ($key = 0; count($UriParams) > $key; $key++){
+                        unset($params[$key]);
+                    }
+                }
+
+                $params = array_values($params);
+            }
+
+            $this->post = array();
 
             if(!empty($fields) AND !empty($params)){
 
@@ -1798,11 +1947,12 @@ class Mind extends PDO
         if(!empty($request)){
 
             if(!empty($params)){
-                $uri .='/'.implode('/', $params);
+                $uri .= '/'.implode('/', $params);
             }
 
-            if($request == $uri OR trim($request, '/') == trim($uri, '/')){
+            if($request == $uri){
                 $this->error_status = false;
+                $this->page_current = $uri;
                 $this->mindLoad($file, $cache);
                 exit();
             }
@@ -1812,6 +1962,7 @@ class Mind extends PDO
         } else {
             if($uri == $this->base_url) {
                 $this->error_status = false;
+                $this->page_current = $uri;
                 $this->mindLoad($file, $cache);
                 exit();
             }
@@ -1953,7 +2104,7 @@ class Mind extends PDO
 
                 $remote_file = $this->remoteFileSize($nLink);
                 $local_file = filesize($destination.'/'.$other_path);
-    
+
                 if($remote_file != $local_file){
                     unlink($destination.'/'.$other_path);
                     copy($nLink, $destination.'/'.$other_path);
@@ -1966,7 +2117,7 @@ class Mind extends PDO
             $result[] = $destination.'/'.$other_path;
         }
 
-    return $result;
+        return $result;
     }
 
     /**
@@ -1982,17 +2133,18 @@ class Mind extends PDO
         $result = array();
 
         if($this->is_url($url)) {
+            $ch = curl_init();
+            curl_setopt($ch,CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HEADER, FALSE);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+            $data = curl_exec($ch);
+            curl_close($ch);
 
-            $arrContextOptions = stream_context_create(array(
-                'ssl' => array(
-                    'verify_peer'       => false,
-                    'verify_peer_name'  => false,
-                )
-            ));
-
-            $data = file_get_contents($url, false, $arrContextOptions);
         } else {
-
             $data = $url;
         }
 
@@ -2028,6 +2180,10 @@ class Mind extends PDO
                 $absolutes[] = $part;
             }
         }
-        return implode(DIRECTORY_SEPARATOR, $absolutes);
+        $outputdir = implode(DIRECTORY_SEPARATOR, $absolutes);
+        if(strstr($outputdir, '\\')){
+            $outputdir = str_replace('\\', '/', $outputdir);
+        }
+        return $outputdir;
     }
 }
