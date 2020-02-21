@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 3.1.3
+ * @version    Release: 3.1.4
  * @license    GPLv3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -36,6 +36,7 @@ class Mind extends PDO
     public  $timestamp;
     public  $error_status   =  false;
     public  $error_file     =  'app/views/errors/404';
+    public  $errors         =  array();
 
     /**
      * Mind constructor.
@@ -115,11 +116,15 @@ class Mind extends PDO
     /**
      * Database selector.
      *
-     * @param $dbName
+     * @param string $dbName
+     * @return bool
      */
     public function selectDB($dbName){
         if($this->is_db($dbName)){
             $this->exec("USE ".$dbName);
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -150,7 +155,7 @@ class Mind extends PDO
     /**
      * Lists database tables.
      *
-     * @param null $dbName
+     * @param string $dbName
      * @return array
      */
     public function tableList($dbName=null){
@@ -182,7 +187,7 @@ class Mind extends PDO
     /**
      * Lists table columns.
      *
-     * @param $tblName
+     * @param string $tblName
      * @return array
      */
     public function columnList($tblName){
@@ -210,7 +215,7 @@ class Mind extends PDO
     /**
      * Creating a database.
      *
-     * @param $dbName
+     * @param mixed $dbName
      * @return bool
      */
     public function dbCreate($dbName){
@@ -256,8 +261,8 @@ class Mind extends PDO
     /**
      * Creating a table.
      *
-     * @param $tblName
-     * @param $scheme
+     * @param string $tblName
+     * @param array $scheme
      * @return bool
      */
     public function tableCreate($tblName, $scheme){
@@ -287,8 +292,8 @@ class Mind extends PDO
     /**
      * Creating a column.
      *
-     * @param $tblName
-     * @param $scheme
+     * @param string $tblName
+     * @param array $scheme
      * @return bool
      */
     public function columnCreate($tblName, $scheme){
@@ -318,7 +323,7 @@ class Mind extends PDO
     /**
      * Delete database.
      *
-     * @param $dbName
+     * @param mixed $dbName
      * @return bool
      */
     public function dbDelete($dbName){
@@ -360,7 +365,7 @@ class Mind extends PDO
     /**
      * Table delete.
      *
-     * @param $tblName
+     * @param mixed $tblName
      * @return bool
      */
     public function tableDelete($tblName){
@@ -401,8 +406,8 @@ class Mind extends PDO
     /**
      * Column delete.
      *
-     * @param $tblName
-     * @param $column
+     * @param string $tblName
+     * @param mixed $column
      * @return bool
      */
     public function columnDelete($tblName, $column){
@@ -443,7 +448,7 @@ class Mind extends PDO
     /**
      * Clear database.
      *
-     * @param mixed   $dbName
+     * @param mixed $dbName
      * @return bool
      * */
     public function dbClear($dbName){
@@ -473,7 +478,7 @@ class Mind extends PDO
     /**
      * Clear table.
      *
-     * @param $tblName
+     * @param mixed $tblName
      * @return bool
      */
     public function tableClear($tblName){
@@ -509,8 +514,8 @@ class Mind extends PDO
     /**
      * Clear column.
      *
-     * @param $tblName
-     * @param null $column
+     * @param string $tblName
+     * @param mixed $column
      * @return bool
      */
     public function columnClear($tblName, $column=null){
@@ -551,8 +556,8 @@ class Mind extends PDO
     /**
      * Add new record.
      *
-     * @param $tblName
-     * @param $values
+     * @param string $tblName
+     * @param array $values
      * @return bool
      */
     public function insert($tblName, $values){
@@ -606,10 +611,10 @@ class Mind extends PDO
     /**
      * Record update.
      *
-     * @param $tblName
-     * @param $values
-     * @param $needle
-     * @param null $column
+     * @param string $tblName
+     * @param array $values
+     * @param string $needle
+     * @param mixed $column
      * @return bool
      */
     public function update($tblName, $values, $needle, $column=null){
@@ -664,9 +669,9 @@ class Mind extends PDO
     /**
      * Record delete.
      *
-     * @param $tblName
-     * @param $needle
-     * @param null $column
+     * @param string $tblName
+     * @param mixed $needle
+     * @param mixed $column
      * @return bool
      */
     public function delete($tblName, $needle, $column=null){
@@ -733,9 +738,9 @@ class Mind extends PDO
     /**
      * Record reading.
      *
-     * @param $tblName
-     * @param null $options
-     * @return  mixed
+     * @param string $tblName
+     * @param array $options
+     * @return array
      */
     public function getData($tblName, $options=null){
 
@@ -825,7 +830,7 @@ class Mind extends PDO
         if(!empty($options['sort'])){
 
             list($columnName, $sort) = explode(':', $options['sort']);
-            if(in_array($sort, array('asc','desc'))){
+            if(in_array($sort, array('asc', 'ASC', 'desc', 'DESC'))){
                 $sql .= ' ORDER BY '.$columnName.' '.strtoupper($sort);
             }
 
@@ -876,10 +881,10 @@ class Mind extends PDO
     /**
      * Research assistant.
      *
-     * @param $tblName
-     * @param $map
-     * @param null $column
-     * @return mixed
+     * @param string $tblName
+     * @param array $map
+     * @param mixed $column
+     * @return array
      */
     public function samantha($tblName, $map, $column=null)
     {
@@ -910,9 +915,9 @@ class Mind extends PDO
     /**
      * Entity verification.
      *
-     * @param $tblName
-     * @param $value
-     * @param null $column
+     * @param string $tblName
+     * @param mixed $value
+     * @param mixed $column
      * @return bool
      */
     public function do_have($tblName, $value, $column=null){
@@ -953,7 +958,7 @@ class Mind extends PDO
     /**
      * New id parameter.
      *
-     * @param $tblName
+     * @param string $tblName
      * @return int
      */
     public function newId($tblName){
@@ -983,7 +988,7 @@ class Mind extends PDO
     /**
      * Auto increment column.
      *
-     * @param string   $tblName
+     * @param string $tblName
      * @return string
      * */
     public function increments($tblName){
@@ -1012,8 +1017,8 @@ class Mind extends PDO
     /**
      * Database verification.
      *
-     * @param string   $dbName
-     * @return  bool
+     * @param string $dbName
+     * @return bool
      * */
     public function is_db($dbName){
 
@@ -1041,8 +1046,8 @@ class Mind extends PDO
     /**
      * Table verification.
      *
-     * @param $tblName
-     * @return  bool
+     * @param string $tblName
+     * @return bool
      */
     public function is_table($tblName){
 
@@ -1059,9 +1064,9 @@ class Mind extends PDO
     /**
      * Column verification.
      *
-     * @param string   $tblName
-     * @param string   $column
-     * @return  bool
+     * @param string $tblName
+     * @param string $column
+     * @return bool
      * */
     public function is_column($tblName, $column){
 
@@ -1086,8 +1091,8 @@ class Mind extends PDO
     /**
      * Phone verification.
      *
-     * @param string   $str
-     * @return  bool
+     * @param string $str
+     * @return bool
      * */
     public function is_phone($str){
 
@@ -1098,22 +1103,21 @@ class Mind extends PDO
     /**
      * Date verification.
      *
-     * @param string   $date
-     * @param string   $format
-     * @return  bool
+     * @param string $date
+     * @param string $format
+     * @return bool
      * */
-    public function is_date($date, $format = 'd-m-Y H:i:s'){
+    public function is_date($date, $format = 'Y-m-d H:i:s'){
 
         $d = DateTime::createFromFormat($format, $date);
-
-        return $d->format($format) == $date AND $d ? true : false;
+        return $d && $d->format($format) == $date;
     }
 
     /**
      * Mail verification.
      *
-     * @param $email
-     * @return  bool
+     * @param string $email
+     * @return bool
      */
     public function is_email($email){
 
@@ -1127,9 +1131,9 @@ class Mind extends PDO
     /**
      * Type verification.
      *
-     * @param $fileName
+     * @param string $fileName
      * @param mixed $type
-     * @return  bool
+     * @return bool
      */
     public function is_type($fileName, $type){
 
@@ -1149,9 +1153,9 @@ class Mind extends PDO
     /**
      * Size verification.
      *
-     * @param mixed   $str
-     * @param mixed   $size
-     * @return  bool
+     * @param mixed $str
+     * @param string $size
+     * @return bool
      * */
     public function is_size($str, $size){
 
@@ -1187,8 +1191,8 @@ class Mind extends PDO
     /**
      * Color verification.
      *
-     * @param string   $color
-     * @return  bool
+     * @param string  $color
+     * @return bool
      * */
     public function is_color($color){
 
@@ -1228,12 +1232,12 @@ class Mind extends PDO
     /**
      * URL verification.
      *
-     * @param null $url
+     * @param string $url
      * @return bool
      */
     public function is_url($url=null){
 
-        if(!isset($url)){
+        if(!is_string($url)){
             return false;
         }
 
@@ -1252,7 +1256,7 @@ class Mind extends PDO
     /**
      * HTTP checking.
      *
-     * @param $url
+     * @param string $url
      * @return bool
      */
     public function is_http($url){
@@ -1265,7 +1269,7 @@ class Mind extends PDO
 
     /**
      * HTTPS checking.
-     * @param $url
+     * @param string $url
      * @return bool
      */
     public function is_https($url){
@@ -1279,7 +1283,7 @@ class Mind extends PDO
     /**
      * Json control of a string
      *
-     * @param $scheme
+     * @param string $scheme
      * @return bool
      */
     public function is_json($scheme){
@@ -1296,10 +1300,199 @@ class Mind extends PDO
     }
 
     /**
+     * is_age
+     * @param $date
+     * @param $age
+     * 
+     * @return bool
+     * 
+     */
+    public function is_age($date, $age){
+        
+        $today = date("Y-m-d");
+        $diff = date_diff(date_create($date), date_create($today));
+
+        if($age > $diff->format('%y')){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Validation
+     * 
+     * @param array $rule
+     * @param array $data
+     * @param array $message
+     * @param array $this->errors
+     * @return bool
+     */
+    public function validate($rule, $data, $message=array()){
+
+        $extra = '';
+        $rules = array();
+        $result = array();
+
+        foreach($rule as $name => $value){
+            
+            if(strstr($value, '|')){
+                foreach(explode('|', trim($value, '/')) as $val){
+                    $rules[$name][] = $val;
+                }
+            } else {
+                $rules[$name][] = $value;
+            }
+
+        }
+
+        foreach($rules as $column => $rule){
+            foreach($rule as $name){
+
+                // İlgili kuralın mesajı yoksa kural adı mesaj olarak belirtilir.
+                if(empty($message[$name])){
+                    $message[$name] = $name;
+                }
+                
+                if(strstr($name, ':')){
+                    $ruleData = explode(':', trim($name, ':'));
+                    if(count($ruleData) == 2){
+                        list($name, $extra) = $ruleData;
+                    }
+
+                }
+                switch ($name) {
+                    // minimum karakter kuralı 
+                    case 'min-num':
+                        if(strlen($data[$column])<$extra){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // maksimum karakter kuralı 
+                    case 'max-num':
+                        if(strlen($data[$column])>$extra){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // E-Posta adresi kuralı
+                    case 'email':
+                        if(!$this->is_email($data[$column])){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // Zorunlu alan kuralı
+                    case 'required':
+                        if(empty($data[$column])){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // Telefon numarası kuralı
+                    case 'phone':
+                        if(!$this->is_phone($data[$column])){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // Tarih kuralı
+                    case 'date':
+                        if(empty($extra)){
+                            $extra = 'Y-m-d';
+                        }
+                        if(!$this->is_date($data[$column], $extra)){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // json kuralı 
+                    case 'json':
+                        if(!$this->is_json($data[$column])){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // Renk kuralı 
+                    case 'color':
+                        if(!$this->is_color($data[$column])){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // URL kuralı 
+                    case 'url':
+                        if(!$this->is_url($data[$column])){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // https kuralı 
+                    case 'https':
+                        if(!$this->is_https($data[$column])){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // http kuralı 
+                    case 'http':
+                        if(!$this->is_http($data[$column])){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // Numerik karakter kuralı 
+                    case 'numeric':
+                        if(!is_numeric($data[$column])){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // Minumum yaş sınırlaması kuralı 
+                    case 'min-age':
+                        if(!is_numeric($extra) OR !$this->is_date($data[$column], 'Y-m-d') OR !$this->is_age($data[$column], $extra)){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // Maksimum yaş sınırlaması kuralı 
+                    case 'max-age':
+                        if(!is_numeric($extra) OR !$this->is_date($data[$column], 'Y-m-d') OR !$this->is_age($data[$column], $extra)){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // Benzersiz parametre kuralı 
+                    case 'unique':
+                        if($this->do_have($extra, $data[$column], $column)){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // Doğrulama kuralı 
+                    case 'bool':
+                        // Geçerlilik kontrolü
+                        $acceptable = array(true, false, 'true', 'false', 0, 1, '0', '1');
+                        if(!in_array($data[$column], $acceptable, true)){
+                            $this->errors[$column][$name] = 'True, false, 0 or 1 must be specified.';
+                        } else {
+                            if(in_array($extra, $acceptable, true)){
+                                // Karşılaştırma kuralı
+                                if(strcmp((string) $data[$column], (string) $extra == 'true')){
+                                    $this->errors[$column][$name] = 'Incompatibility was detected.';
+                                } 
+                            }
+                            
+                        }
+                        break;
+                    // Geçersiz kural engellendi.
+                    default:
+                        $this->errors[$column][$name] = 'Invalid rule has been blocked.';
+                    break;
+                }
+                $extra = '';
+            }
+        }
+
+       
+        if(empty($this->errors)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Path information
      *
-     * @param $fileName
-     * @param $type
+     * @param string $fileName
+     * @param string $type
      * @return bool|string
      */
     public function info($fileName, $type){
@@ -1320,8 +1513,8 @@ class Mind extends PDO
     /**
      * Protection from pests.
      *
-     * @param mixed   $str
-     * @return  mixed
+     * @param mixed $str
+     * @return mixed
      * */
     public function filter($str){
 
@@ -1371,10 +1564,10 @@ class Mind extends PDO
     /**
      * Redirect
      *
-     * @param null $url
+     * @param string $url
      * @param int $delay
      */
-    public function redirect($url=null, $delay=0){
+    public function redirect($url = '', $delay = 0){
 
         if(!$this->is_http($url) AND !$this->is_https($url) OR empty($url)){
             $url = 'http://'.$_SERVER['SERVER_NAME'].$this->base_url.$url;
@@ -1392,7 +1585,7 @@ class Mind extends PDO
     /**
      * Permanent connection.
      *
-     * @param $str
+     * @param string $str
      * @param array $options
      * @return string
      */
@@ -1554,7 +1747,7 @@ class Mind extends PDO
     /**
      * Time zones.
      *
-     * @return array|false
+     * @return array
      */
     public function timezones(){
         return timezone_identifiers_list();
@@ -1563,7 +1756,7 @@ class Mind extends PDO
     /**
      * Session checking.
      *
-     * @return bool
+     * @return array $_SESSSION
      */
     public function session_check(){
 
@@ -1592,14 +1785,13 @@ class Mind extends PDO
 
         }
 
-        return false;
     }
 
     /**
      * Learns the size of the remote file.
      *
-     * @param $url
-     * @return int|mixed
+     * @param string $url
+     * @return int
      */
     public function remoteFileSize($url){
         $ch = curl_init($url);
@@ -1624,8 +1816,8 @@ class Mind extends PDO
     /**
      * Layer installer.
      *
-     * @param $file
-     * @param null $cache
+     * @param mixed $file
+     * @param mixed $cache
      */
     public function mindLoad($file, $cache=null){
 
@@ -1696,8 +1888,8 @@ class Mind extends PDO
     /**
      * Column sql syntax creator.
      *
-     * @param $scheme
-     * @param null $funcName
+     * @param array $scheme
+     * @param string $funcName
      * @return array
      */
     public function cGenerator($scheme, $funcName=null){
@@ -1814,13 +2006,13 @@ class Mind extends PDO
     /**
      * Parameter parser.
      *
-     * @param null $str
+     * @param string $str
      * @return array
      */
-    public function pGenerator($str=null){
+    public function pGenerator($str=''){
 
         $Result = array();
-        if(!is_null($str)){
+        if(!empty($str)){
 
             if(strstr($str, ':')){
                 $strExplode = array_filter(explode(':', trim($str, ':')));
@@ -1847,10 +2039,9 @@ class Mind extends PDO
     /**
      * Routing manager.
      *
-     * @param $uri
-     * @param $file
-     * @param null $cache
-     * @return bool
+     * @param string $uri
+     * @param mixed $file
+     * @param mixed $cache
      */
     public function route($uri, $file, $cache=null){
         $public_htaccess = implode("\n", array(
@@ -1968,18 +2159,18 @@ class Mind extends PDO
             }
 
         }
-        return false;
+    
     }
 
     /**
      * File writer.
      *
-     * @param $data
-     * @param $filePath
+     * @param array $data
+     * @param string $filePath
      * @param string $delimiter
      * @return bool
      */
-    public function write($data, $filePath, $delimiter=':') {
+    public function write($data, $filePath, $delimiter = ':') {
 
         if(is_array($data)){
             $content    = implode($delimiter, $data);
@@ -2002,8 +2193,8 @@ class Mind extends PDO
     /**
      * File uploader.
      *
-     * @param $files
-     * @param $path
+     * @param array $files
+     * @param string $path
      * @return array
      */
     public function upload($files, $path){
@@ -2037,11 +2228,11 @@ class Mind extends PDO
     /**
      * File downloader.
      *
-     * @param $links
-     * @param null $opt
+     * @param mixed $links
+     * @param array $opt
      * @return array
      */
-    public function download($links, $opt = null)
+    public function download($links, $opt = array())
     {
 
         $result = array();
@@ -2123,9 +2314,9 @@ class Mind extends PDO
     /**
      * Content researcher.
      *
-     * @param $left
-     * @param $right
-     * @param $url
+     * @param string $left
+     * @param string $right
+     * @param string $url
      * @return array
      */
     public function get_contents($left, $right, $url){
@@ -2165,7 +2356,7 @@ class Mind extends PDO
     /**
      * Absolute path syntax
      *
-     * @param $path
+     * @param string $path
      * @return string
      */
     public function get_absolute_path($path) {
