@@ -1312,7 +1312,173 @@ class Mind extends PDO
         $today = date("Y-m-d");
         $diff = date_diff(date_create($date), date_create($today));
 
-        if($age > $diff->format('%y')){
+        if($age >= $diff->format('%y')){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * International Bank Account Number verification
+     *
+     * @params string $iban
+     * @return bool
+     */
+    function is_iban($iban){
+        $iban = strtolower(str_replace(' ','',$iban));
+        $Countries = array('al'=>28,'ad'=>24,'at'=>20,'az'=>28,'bh'=>22,'be'=>16,'ba'=>20,'br'=>29,'bg'=>22,'cr'=>21,'hr'=>21,'cy'=>28,'cz'=>24,'dk'=>18,'do'=>28,'ee'=>20,'fo'=>18,'fi'=>18,'fr'=>27,'ge'=>22,'de'=>22,'gi'=>23,'gr'=>27,'gl'=>18,'gt'=>28,'hu'=>28,'is'=>26,'ie'=>22,'il'=>23,'it'=>27,'jo'=>30,'kz'=>20,'kw'=>30,'lv'=>21,'lb'=>28,'li'=>21,'lt'=>20,'lu'=>20,'mk'=>19,'mt'=>31,'mr'=>27,'mu'=>30,'mc'=>27,'md'=>24,'me'=>22,'nl'=>18,'no'=>15,'pk'=>24,'ps'=>29,'pl'=>28,'pt'=>25,'qa'=>29,'ro'=>24,'sm'=>27,'sa'=>24,'rs'=>22,'sk'=>24,'si'=>19,'es'=>24,'se'=>24,'ch'=>21,'tn'=>24,'tr'=>26,'ae'=>23,'gb'=>22,'vg'=>24);
+        $Chars = array('a'=>10,'b'=>11,'c'=>12,'d'=>13,'e'=>14,'f'=>15,'g'=>16,'h'=>17,'i'=>18,'j'=>19,'k'=>20,'l'=>21,'m'=>22,'n'=>23,'o'=>24,'p'=>25,'q'=>26,'r'=>27,'s'=>28,'t'=>29,'u'=>30,'v'=>31,'w'=>32,'x'=>33,'y'=>34,'z'=>35);
+
+        if(!in_array(substr($iban,0,2), array_keys($Countries))){
+            return false;
+        }
+
+        if(strlen($iban) == $Countries[substr($iban,0,2)]){
+
+            $MovedChar = substr($iban, 4).substr($iban,0,4);
+            $MovedCharArray = str_split($MovedChar);
+            $NewString = "";
+
+            foreach($MovedCharArray AS $key => $value){
+                if(!is_numeric($MovedCharArray[$key])){
+                    $MovedCharArray[$key] = $Chars[$MovedCharArray[$key]];
+                }
+                $NewString .= $MovedCharArray[$key];
+            }
+
+            if(bcmod($NewString, '97') == 1)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * ipv4 verification
+     *
+     * @params string $ip
+     * @return bool
+     */
+    public function is_ipv4($ip){
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * ipv6 verification
+     *
+     * @params string $ip
+     * @return bool
+     */
+    public function is_ipv6($ip){
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Blood group verification
+     *
+     * @param $blood
+     * @param string $needle
+     * @return bool
+     */
+    public function is_blood($blood, $needle = null){
+
+        $bloods = array(
+            'AB+'=> array(
+                'AB+', 'AB-', 'B+', 'B-', 'A+', 'A-', '0+', '0-'
+            ),
+            'AB-'=> array(
+                'AB-', 'B-', 'A-', '0-'
+            ),
+            'B+'=> array(
+                'B+', 'B2-', '0+', '0-'
+            ),
+            'B-'=> array(
+                'B-', '0-'
+            ),
+            'A+'=> array(
+                'A+', 'A-', '0+', '0-'
+            ),
+            'A-'=> array(
+                'A-', '0-'
+            ),
+            '0+'=> array(
+                '0+', '0-'
+            ),
+            '0-'=> array(
+                '0-'
+            )
+        );
+
+        //  hasta ve donör parametreleri filtreden geçirilir
+        $blood = str_replace(array('RH', ' '), '', mb_strtoupper($blood));
+        $needle = str_replace(array('RH', ' '), '', mb_strtoupper($needle));
+
+        $map = array_keys($bloods);
+
+        // Kan grubu kontrolü
+        if(in_array($blood, $map) AND $needle == null){
+            return true;
+        }
+
+        // Donör uyumu kontrolü
+        if(in_array($blood, $map) AND in_array($needle, $bloods[$blood]) AND $needle != null){
+            return true;
+        }
+
+        return false;
+
+    }
+
+    /**
+     *  Validates a given Latitude
+     * @param float|int|string $latitude
+     * @return bool
+     */
+    public function is_latitude($latitude){
+        $lat_pattern  = '/\A[+-]?(?:90(?:\.0{1,18})?|\d(?(?<=9)|\d?)\.\d{1,18})\z/x';
+
+        if (preg_match($lat_pattern, $latitude)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     *  Validates a given longitude
+     * @param float|int|string $longitude
+     * @return bool
+     */
+    public function is_longitude($longitude){
+        $long_pattern = '/\A[+-]?(?:180(?:\.0{1,18})?|(?:1[0-7]\d|\d{1,2})\.\d{1,18})\z/x';
+
+        if (preg_match($long_pattern, $longitude)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Validates a given coordinate
+     *
+     * @param float|int|string $lat Latitude
+     * @param float|int|string $long Longitude
+     * @return bool `true` if the coordinate is valid, `false` if not
+     */
+    public function is_coordinate($lat, $long) {
+
+        if ($this->is_latitude($lat) AND $this->is_longitude($long)) {
             return true;
         } else {
             return false;
@@ -1332,7 +1498,6 @@ class Mind extends PDO
 
         $extra = '';
         $rules = array();
-        $result = array();
 
         foreach($rule as $name => $value){
             
@@ -1470,7 +1635,54 @@ class Mind extends PDO
                             }
                             
                         }
-                        break;
+                    break;
+                    // IBAN doğrulama kuralı
+                    case 'iban':
+                        if(!$this->is_iban($data[$column])){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // ipv4 doğrulama kuralı
+                    case 'ipv4':
+                        if(!$this->is_ipv4($data[$column])){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // ipv6 doğrulama kuralı
+                    case 'ipv6':
+                        if(!$this->is_ipv6($data[$column])){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // kan grubu ve uyumu kuralı
+                    case 'blood':
+                        if(!$this->is_blood($data[$column], $extra)){
+                            $this->errors[$column][$name] = $message[$name];
+                        }
+                    break;
+                    // Koordinat kuralı
+                    case 'coordinate':
+
+                        if(!strstr($data[$column], ',')){
+                            $this->errors[$column][$name] = $message[$name];
+                        } else {
+
+                            $coordinates = explode(',', $data[$column]);
+                            if(count($coordinates)==2){
+
+                                list($lat, $long) = $coordinates;
+
+                                if(!$this->is_coordinate($lat, $long)){
+                                    $this->errors[$column][$name] = $message[$name];
+                                }
+
+                            } else {
+                                $this->errors[$column][$name] = $message[$name];
+                            }
+
+                        }
+
+                    break;
                     // Geçersiz kural engellendi.
                     default:
                         $this->errors[$column][$name] = 'Invalid rule has been blocked.';
@@ -2376,5 +2588,92 @@ class Mind extends PDO
             $outputdir = str_replace('\\', '/', $outputdir);
         }
         return $outputdir;
+    }
+
+    /**
+     *
+     * Calculates the distance between two points, given their
+     * latitude and longitude, and returns an array of values
+     * of the most common distance units
+     * {m, km, mi, ft, yd}
+     *
+     * @param float|int|string $lat1 Latitude of the first point
+     * @param float|int|string $lon1 Longitude of the first point
+     * @param float|int|string $lat2 Latitude of the second point
+     * @param float|int|string $lon2 Longitude of the second point
+     * @return mixed {bool|array}
+     */
+    public function distanceMeter($lat1, $lon1, $lat2, $lon2, $type = '') {
+
+        $output = array();
+
+        // koordinat değillerse false yanıtı döndürülür.
+        if(!$this->is_coordinate($lat1, $lon1) OR !$this->is_coordinate($lat2, $lon2)){ return false; }
+
+        // aynı koordinatlar belirtilmiş ise false yanıtı döndürülür.
+        if (($lat1 == $lat2) AND ($lon1 == $lon2)) { return false; }
+
+        // dereceden radyana dönüştürme işlemi
+        $latFrom = deg2rad($lat1);
+        $lonFrom = deg2rad($lon1);
+        $latTo = deg2rad($lat2);
+        $lonTo = deg2rad($lon2);
+
+        $lonDelta = $lonTo - $lonFrom;
+        $a = pow(cos($latTo) * sin($lonDelta), 2) +
+            pow(cos($latFrom) * sin($latTo) - sin($latFrom) * cos($latTo) * cos($lonDelta), 2);
+        $b = sin($latFrom) * sin($latTo) + cos($latFrom) * cos($latTo) * cos($lonDelta);
+
+        $angle = atan2(sqrt($a), $b);
+
+        $meters     = $angle * 6371000;
+        $kilometers = $meters / 1000;
+        $miles      = $meters * 0.00062137;
+        $feet       = $meters * 3.2808399;
+        $yards      = $meters * 1.0936;
+
+        $data = array(
+            'm'     =>  round($meters, 2),
+            'km'    =>  round($kilometers, 2),
+            'mi'    =>  round($miles, 2),
+            'ft'    =>  round($feet, 2),
+            'yd'    =>  round($yards, 2)
+        );
+
+        // eğer ölçü birimi boşsa tüm ölçülerle yanıt verilir
+        if(empty($type)){
+            return $data;
+        }
+
+        // eğer ölçü birimi string ise ve müsaade edilen bir ölçüyse diziye eklenir
+        if(!is_array($type) AND in_array($type, array_keys($data))){
+            $type = array($type);
+        }
+
+        // eğer ölçü birimi string ise ve müsaade edilen bir ölçü değilse boş dizi geri döndürülür
+        if(!is_array($type) AND !in_array($type, array_keys($data))){
+            return false;
+        }
+
+        // gönderilen tüm ölçü birimlerinin doğruluğu kontrol edilir
+        foreach ($type as $name){
+            if(!in_array($name, array_keys($data))){
+                return $output;
+            }
+        }
+
+        // gönderilen ölçü birimlerinin yanıtları hazırlanır
+        foreach ($type as $name){
+            $output[$name] = $data[$name];
+        }
+
+        // tek bir ölçü birimi gönderilmiş ise sadece onun değeri geri döndürülür
+        if(count($type)==1){
+            $name = implode('', $type);
+            return $output[$name];
+        }
+
+        // birden çok ölçü birimi yanıtları geri döndürülür
+        return $output;
     }
 }
