@@ -30,8 +30,8 @@ if(empty($this->post['limit'])){
     $this->post['limit'] = $limit;
 }
 
-if(empty($this->post['sort'])){
-    $this->post['sort'] = $sort;
+if(!empty($this->post['sort']) AND in_array($this->post['sort'], array('DESC', 'ASC'))){
+    $sort = $this->post['sort'];
 }
 
 $options = array(
@@ -43,4 +43,5 @@ $options = array(
 );
 
 $list = $this->getData($tblname, $options);
+
 ?>

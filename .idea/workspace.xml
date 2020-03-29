@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="48a13095-926d-4fe3-9618-a6f238646b1d" name="Default Changelist" comment="">
+    <list default="true" id="48a13095-926d-4fe3-9618-a6f238646b1d" name="Default Changelist" comment="Samantha used.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/ListModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/ListModel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/RecordModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/RecordModel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/edit.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/edit.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/remove.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/remove.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,15 +129,15 @@
     <option name="LAST_COMMIT_MESSAGE" value="Mind has been upgraded to the new version." />
   </component>
   <component name="WindowStateProjectService">
-    <state x="305" y="0" key="CommitChangelistDialog2" timestamp="1584719610906">
-      <screen x="0" y="0" width="1298" height="690" />
+    <state x="321" y="0" key="CommitChangelistDialog2" timestamp="1585504106540">
+      <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="305" y="0" key="CommitChangelistDialog2/0.0.1298.690@0.0.1298.690" timestamp="1584719610906" />
-    <state x="321" y="0" key="CommitChangelistDialog2/0.0.1366.728@0.0.1366.728" timestamp="1582267081969" />
-    <state x="261" y="95" key="Vcs.Push.Dialog.v2" timestamp="1584719618944">
-      <screen x="0" y="0" width="1298" height="690" />
+    <state x="321" y="0" key="CommitChangelistDialog2/0.0.1366.728@0.0.1366.728" timestamp="1585504106540" />
+    <state x="275" y="100" key="Vcs.Push.Dialog.v2" timestamp="1585504115227">
+      <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="261" y="95" key="Vcs.Push.Dialog.v2/0.0.1298.690@0.0.1298.690" timestamp="1584719618944" />
-    <state x="275" y="100" key="Vcs.Push.Dialog.v2/0.0.1366.728@0.0.1366.728" timestamp="1582267088128" />
+    <state x="275" y="100" key="Vcs.Push.Dialog.v2/0.0.1366.728@0.0.1366.728" timestamp="1585504115227" />
   </component>
 </project>
