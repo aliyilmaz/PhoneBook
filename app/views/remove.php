@@ -10,20 +10,20 @@
 
     <div class="form-group">
         <label for="name">Name</label>
-        <input type="text" class="form-control" id="name" value="<?=$record[0]['name'];?>" disabled="disabled">
+        <input type="text" class="form-control" id="name" value="<?=$record['name'];?>" disabled="disabled">
     </div>
 
     <div class="form-group">
         <label for="phone">Phone</label>
-        <input type="tel" class="form-control" id="phone" value="<?=$record[0]['phone'];?>" disabled="disabled">
+        <input type="tel" class="form-control" id="phone" value="<?=$record['phone'];?>" disabled="disabled">
     </div>
 
     <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" class="form-control" id="email" value="<?=$record[0]['email'];?>" disabled="disabled">
+        <input type="email" class="form-control" id="email" value="<?=$record['email'];?>" disabled="disabled">
     </div>
 
-    <input type="hidden" name="id" value="<?=$record[0]['id'];?>">
+    <input type="hidden" name="id" value="<?=$record['id'];?>">
     <input type="hidden" name="status" value="true">
 
     <button type="submit" class="btn btn-default btn-xs btn-danger">
