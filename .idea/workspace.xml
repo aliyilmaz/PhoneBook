@@ -4,12 +4,6 @@
     <list default="true" id="48a13095-926d-4fe3-9618-a6f238646b1d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Mind.php" beforeDir="false" afterPath="$PROJECT_DIR$/Mind.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/model/ListModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/ListModel.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/views/edit.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/edit.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/views/layout/header.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/layout/header.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/views/list.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/views/remove.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/remove.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,7 +106,14 @@
       <option name="project" value="LOCAL" />
       <updated>1584719613397</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Search feature has been updated.">
+      <created>1585659033379</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1585659033379</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -124,18 +125,19 @@
     <MESSAGE value="Değişken ve Metod isimleri güncellendi." />
     <MESSAGE value="Mind 3.0.0 sürümüne yükseltildi." />
     <MESSAGE value="Mind has been upgraded to the new version." />
-    <option name="LAST_COMMIT_MESSAGE" value="Mind has been upgraded to the new version." />
+    <MESSAGE value="Search feature has been updated." />
+    <option name="LAST_COMMIT_MESSAGE" value="Search feature has been updated." />
   </component>
   <component name="WindowStateProjectService">
-    <state x="321" y="0" key="CommitChangelistDialog2" timestamp="1585504106540">
+    <state x="321" y="0" key="CommitChangelistDialog2" timestamp="1585659030223">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="305" y="0" key="CommitChangelistDialog2/0.0.1298.690@0.0.1298.690" timestamp="1584719610906" />
-    <state x="321" y="0" key="CommitChangelistDialog2/0.0.1366.728@0.0.1366.728" timestamp="1585504106540" />
-    <state x="275" y="100" key="Vcs.Push.Dialog.v2" timestamp="1585504115227">
+    <state x="321" y="0" key="CommitChangelistDialog2/0.0.1366.728@0.0.1366.728" timestamp="1585659030223" />
+    <state x="275" y="100" key="Vcs.Push.Dialog.v2" timestamp="1585659040733">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="261" y="95" key="Vcs.Push.Dialog.v2/0.0.1298.690@0.0.1298.690" timestamp="1584719618944" />
-    <state x="275" y="100" key="Vcs.Push.Dialog.v2/0.0.1366.728@0.0.1366.728" timestamp="1585504115227" />
+    <state x="275" y="100" key="Vcs.Push.Dialog.v2/0.0.1366.728@0.0.1366.728" timestamp="1585659040733" />
   </component>
 </project>

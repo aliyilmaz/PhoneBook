@@ -1788,14 +1788,14 @@ class Mind extends PDO
 
                         if(is_array($all)){
                             foreach($all as $i => $val ){
-                                $this->post[$name][$i][$key] = $this->filter($val);
+                                $this->post[$name][$i][$key] = $val;
                             }
                         } else {
-                            $this->post[$name][$key] = $this->filter($all);
+                            $this->post[$name][$key] = $all;
                         }
                     }
                 } else {
-                    $this->post[$name] = $this->filter($value);
+                    $this->post[$name] = $value;
                 }
             }
         }
