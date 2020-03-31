@@ -1,6 +1,6 @@
 <?php $this->mindLoad('app/views/layout/header'); ?>
 
-<form action="list" method="post">
+<form action="<?=$this->base_url;?>" method="post">
     <div class="row">
        <div class="col-sm-1">
            <div class="form-group">
@@ -27,7 +27,7 @@
         <div class="col-sm-3">
             <div class="form-group">
                 <label for="keyword">Keyword</label>
-                    <input class="form-control" name="keyword" type="text">
+                    <input id="keyword" class="form-control" name="keyword" type="text">
             </div>
         </div>
         <div class="col-md-5">

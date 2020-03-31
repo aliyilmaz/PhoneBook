@@ -41,7 +41,7 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li><a href="list">List</a></li>
+                <li><a href="<?=$this->base_url;?>">Home</a></li>
                 <li><a href="add">Add</a></li>
                 <li><a href="add"></a></li>
             </ul>

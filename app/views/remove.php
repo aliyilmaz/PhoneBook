@@ -30,12 +30,12 @@
         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Yes, Remove
     </button>
 
-    <a href="<?=$this->base_url;?>" class="btn btn-default btn-xs btn-warning">
-        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Cancel
-    </a>
-
     <a href="edit/<?=$record['id'];?>" class="btn btn-default btn-xs btn-primary">
         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit
+    </a>
+
+    <a href="<?=$this->base_url;?>" class="btn btn-default btn-xs btn-warning">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Cancel
     </a>
 
 </form>

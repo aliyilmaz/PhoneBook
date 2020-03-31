@@ -9,12 +9,14 @@ $column  = $this->increments('phonebook');
 $columns = array();
 $patterns = array();
 
-if(empty($this->post['keyword'])){
-    $this->post['keyword'] = '';
+if(!empty($this->post['keyword'])){
+    $keyword = $this->post['keyword'];
 }
-$patterns['keyword'] = $this->post['keyword'];
+$patterns['keyword'] = $keyword;
 
 $model = array();
+
+// Or parameters.
 if(!empty($this->post['columns'])){
     foreach ($this->post['columns'] as $column){
         $model[$column] = '%'.$this->post['keyword'].'%';
@@ -22,16 +24,21 @@ if(!empty($this->post['columns'])){
 }
 $patterns['or'] = $model;
 
+// Column names
 if(!empty($model)){
     $patterns['columns'] = array_keys($model);
 }
 
-if(empty($this->post['limit'])){
-    $this->post['limit'] = $limit;
+// Limit control
+if(!empty($this->post['limit'])){
+    $limit = $this->post['limit'];
 }
 
-if(!empty($this->post['sort']) AND in_array($this->post['sort'], array('DESC', 'ASC'))){
-    $sort = $this->post['sort'];
+// Sort control
+if(!empty($this->post['sort'])){
+    if(in_array(mb_strtoupper($this->post['sort']), array('DESC', 'ASC'))){
+        $sort = $this->post['sort'];
+    }
 }
 
 $options = array(

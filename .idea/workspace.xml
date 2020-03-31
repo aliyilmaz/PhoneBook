@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="48a13095-926d-4fe3-9618-a6f238646b1d" name="Default Changelist" comment="Samantha used.">
+    <list default="true" id="48a13095-926d-4fe3-9618-a6f238646b1d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mind.php" beforeDir="false" afterPath="$PROJECT_DIR$/Mind.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/model/ListModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/ListModel.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/model/RecordModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/RecordModel.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/views/edit.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/edit.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/layout/header.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/layout/header.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/list.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/index.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/views/remove.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/remove.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,11 +20,6 @@
     <execution>
       <executable />
     </execution>
-  </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>getData</find>
-    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />

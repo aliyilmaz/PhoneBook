@@ -23,12 +23,12 @@
         <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Update
     </button>
 
-    <a href="<?=$this->base_url;?>" class="btn btn-default btn-xs btn-warning">
-        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Cancel
-    </a>
-
     <a href="remove/<?=$this->post['id'];?>" class="btn btn-default btn-xs btn-danger">
         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Remove
+    </a>
+
+    <a href="<?=$this->base_url;?>" class="btn btn-default btn-xs btn-warning">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Cancel
     </a>
 
 </form>
