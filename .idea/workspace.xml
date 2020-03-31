@@ -3,7 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="48a13095-926d-4fe3-9618-a6f238646b1d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Mind.php" beforeDir="false" afterPath="$PROJECT_DIR$/Mind.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/database/install.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/database/install.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/ListModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/ListModel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/style/css/sticky-footer-navbar.css" beforeDir="false" afterPath="$PROJECT_DIR$/style/css/sticky-footer-navbar.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,7 +116,14 @@
       <option name="project" value="LOCAL" />
       <updated>1585659033379</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="The filter method has been removed.">
+      <created>1585659166181</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1585659166181</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -126,18 +136,19 @@
     <MESSAGE value="Mind 3.0.0 sürümüne yükseltildi." />
     <MESSAGE value="Mind has been upgraded to the new version." />
     <MESSAGE value="Search feature has been updated." />
-    <option name="LAST_COMMIT_MESSAGE" value="Search feature has been updated." />
+    <MESSAGE value="The filter method has been removed." />
+    <option name="LAST_COMMIT_MESSAGE" value="The filter method has been removed." />
   </component>
   <component name="WindowStateProjectService">
-    <state x="321" y="0" key="CommitChangelistDialog2" timestamp="1585659030223">
+    <state x="321" y="0" key="CommitChangelistDialog2" timestamp="1585659164603">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="305" y="0" key="CommitChangelistDialog2/0.0.1298.690@0.0.1298.690" timestamp="1584719610906" />
-    <state x="321" y="0" key="CommitChangelistDialog2/0.0.1366.728@0.0.1366.728" timestamp="1585659030223" />
-    <state x="275" y="100" key="Vcs.Push.Dialog.v2" timestamp="1585659040733">
+    <state x="321" y="0" key="CommitChangelistDialog2/0.0.1366.728@0.0.1366.728" timestamp="1585659164603" />
+    <state x="275" y="100" key="Vcs.Push.Dialog.v2" timestamp="1585659169026">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="261" y="95" key="Vcs.Push.Dialog.v2/0.0.1298.690@0.0.1298.690" timestamp="1584719618944" />
-    <state x="275" y="100" key="Vcs.Push.Dialog.v2/0.0.1366.728@0.0.1366.728" timestamp="1585659040733" />
+    <state x="275" y="100" key="Vcs.Push.Dialog.v2/0.0.1366.728@0.0.1366.728" timestamp="1585659169026" />
   </component>
 </project>

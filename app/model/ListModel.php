@@ -5,9 +5,9 @@ $list = array();
 $limit = 5;
 $sort = 'DESC';
 $keyword = '';
-$column  = $this->increments('phonebook');
 $columns = array();
 $patterns = array();
+$column  = $this->increments('phonebook');
 
 if(!empty($this->post['keyword'])){
     $keyword = $this->post['keyword'];
@@ -18,8 +18,12 @@ $model = array();
 
 // Or parameters.
 if(!empty($this->post['columns'])){
-    foreach ($this->post['columns'] as $column){
-        $model[$column] = '%'.$this->post['keyword'].'%';
+    foreach ($this->post['columns'] as $xcolumn){
+        $model[$xcolumn] = '%'.$keyword.'%';
+    }
+} else {
+    foreach ($this->columnList($tblname) as $xcolumn){
+        $model[$xcolumn] = '%'.$keyword.'%';
     }
 }
 $patterns['or'] = $model;

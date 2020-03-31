@@ -11,15 +11,29 @@ $options = array(
     'updated_at'
 );
 
-if(!$this->is_table($tblname)){
-    $this->tableCreate($tblname, $options);
+if($this->tableCreate($tblname, $options)){
 
     $rows = array(
-        'name'          => 'Ali Yılmaz',
-        'phone'         => '01010101010',
-        'email'         => 'aliyilmaz.work@gmail.com',
-        'created_at'    =>  $this->timestamp
+        array(
+            'name'          => 'John Doe 1',
+            'phone'         => '05554443322',
+            'email'         => 'johndoe1@gmail.com',
+            'created_at'    =>  $this->timestamp
+        ),
+        array(
+            'name'          => 'John Doe 2',
+            'phone'         => '05553332211',
+            'email'         => 'johndoe2@gmail.com',
+            'created_at'    =>  $this->timestamp
+        ),
+        array(
+            'name'          => 'John Doe 3',
+            'phone'         => '05556665544',
+            'email'         => 'johndoe3@gmail.com',
+            'created_at'    =>  $this->timestamp
+        )
     );
+
     $this->insert($tblname, $rows);
 }
 

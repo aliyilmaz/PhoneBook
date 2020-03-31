@@ -72,13 +72,12 @@ code {
   }
 
   tr:nth-child(odd) {
-    background-color: #d4d4d4;
+    background-color: #eff3f1;
   }
 
   td {
     /* Behave  like a "row" */
     border: none;
-    border-bottom: 1px solid #f8f8f8;
     position: relative;
     padding-left: 20%;
 
@@ -99,6 +98,10 @@ code {
     clever way to handle with text-shadow.
   */
   td:before { content: attr(data-label); }
+}
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+  border-top: none;
+  padding: 10px;
 }
 .bg-danger{
 
