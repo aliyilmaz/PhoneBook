@@ -3,8 +3,8 @@
 /**
  *
  * @package    Mind
- * @version    Release: 3.1.4
- * @license    GPLv3
+ * @version    Release: 3.1.5
+ * @license    GPL3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
  * @link       https://github.com/aliyilmaz/Mind
@@ -48,8 +48,8 @@ class Mind extends PDO
             $this->host = $conf['host'];
         }
 
-        if(isset($conf['dbName'])){
-            $this->dbName = $conf['dbName'];
+        if(isset($conf['dbname'])){
+            $this->dbName = $conf['dbname'];
         }
 
         if(isset($conf['username'])){
@@ -1303,12 +1303,12 @@ class Mind extends PDO
      * is_age
      * @param $date
      * @param $age
-     *
+     * 
      * @return bool
-     *
+     * 
      */
     public function is_age($date, $age){
-
+        
         $today = date("Y-m-d");
         $diff = date_diff(date_create($date), date_create($today));
 
@@ -1323,36 +1323,35 @@ class Mind extends PDO
      * International Bank Account Number verification
      *
      * @params string $iban
+     * @param $iban
      * @return bool
      */
-    function is_iban($iban){
-        $iban = strtolower(str_replace(' ','',$iban));
-        $Countries = array('al'=>28,'ad'=>24,'at'=>20,'az'=>28,'bh'=>22,'be'=>16,'ba'=>20,'br'=>29,'bg'=>22,'cr'=>21,'hr'=>21,'cy'=>28,'cz'=>24,'dk'=>18,'do'=>28,'ee'=>20,'fo'=>18,'fi'=>18,'fr'=>27,'ge'=>22,'de'=>22,'gi'=>23,'gr'=>27,'gl'=>18,'gt'=>28,'hu'=>28,'is'=>26,'ie'=>22,'il'=>23,'it'=>27,'jo'=>30,'kz'=>20,'kw'=>30,'lv'=>21,'lb'=>28,'li'=>21,'lt'=>20,'lu'=>20,'mk'=>19,'mt'=>31,'mr'=>27,'mu'=>30,'mc'=>27,'md'=>24,'me'=>22,'nl'=>18,'no'=>15,'pk'=>24,'ps'=>29,'pl'=>28,'pt'=>25,'qa'=>29,'ro'=>24,'sm'=>27,'sa'=>24,'rs'=>22,'sk'=>24,'si'=>19,'es'=>24,'se'=>24,'ch'=>21,'tn'=>24,'tr'=>26,'ae'=>23,'gb'=>22,'vg'=>24);
-        $Chars = array('a'=>10,'b'=>11,'c'=>12,'d'=>13,'e'=>14,'f'=>15,'g'=>16,'h'=>17,'i'=>18,'j'=>19,'k'=>20,'l'=>21,'m'=>22,'n'=>23,'o'=>24,'p'=>25,'q'=>26,'r'=>27,'s'=>28,'t'=>29,'u'=>30,'v'=>31,'w'=>32,'x'=>33,'y'=>34,'z'=>35);
+    public function is_iban($iban){
+        // Normalize input (remove spaces and make upcase)
+        $iban = strtoupper(str_replace(' ', '', $iban));
 
-        if(!in_array(substr($iban,0,2), array_keys($Countries))){
+        if (preg_match('/^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$/', $iban)) {
+            $country = substr($iban, 0, 2);
+            $check = intval(substr($iban, 2, 2));
+            $account = substr($iban, 4);
+
+            // To numeric representation
+            $search = range('A','Z');
+            foreach (range(10,35) as $tmp)
+                $replace[]=strval($tmp);
+            $numstr = str_replace($search, $replace, $account.$country.'00');
+
+            // Calculate checksum
+            $checksum = intval(substr($numstr, 0, 1));
+            for ($pos = 1; $pos < strlen($numstr); $pos++) {
+                $checksum *= 10;
+                $checksum += intval(substr($numstr, $pos,1));
+                $checksum %= 97;
+            }
+
+            return ((98-$checksum) == $check);
+        } else
             return false;
-        }
-
-        if(strlen($iban) == $Countries[substr($iban,0,2)]){
-
-            $MovedChar = substr($iban, 4).substr($iban,0,4);
-            $MovedCharArray = str_split($MovedChar);
-            $NewString = "";
-
-            foreach($MovedCharArray AS $key => $value){
-                if(!is_numeric($MovedCharArray[$key])){
-                    $MovedCharArray[$key] = $Chars[$MovedCharArray[$key]];
-                }
-                $NewString .= $MovedCharArray[$key];
-            }
-
-            if(bcmod($NewString, '97') == 1)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -1419,19 +1418,19 @@ class Mind extends PDO
             )
         );
 
-        //  hasta ve donör parametreleri filtreden geçirilir
-        $blood = str_replace(array('RH', ' '), '', mb_strtoupper($blood));
-        $needle = str_replace(array('RH', ' '), '', mb_strtoupper($needle));
-
         $map = array_keys($bloods);
 
+        //  hasta ve varsa donör parametreleri filtreden geçirilir
+        $blood = str_replace(array('RH', ' '), '', mb_strtoupper($blood));
+        if(!is_null($needle)) $needle = str_replace(array('RH', ' '), '', mb_strtoupper($needle));
+
         // Kan grubu kontrolü
-        if(in_array($blood, $map) AND $needle == null){
+        if(in_array($blood, $map) AND is_null($needle)){
             return true;
         }
 
         // Donör uyumu kontrolü
-        if(in_array($blood, $map) AND in_array($needle, $bloods[$blood]) AND $needle != null){
+        if(in_array($blood, $map) AND in_array($needle, $bloods[$blood]) AND !is_null($needle)){
             return true;
         }
 
@@ -1493,27 +1492,27 @@ class Mind extends PDO
         $symbols = array('m', 'km', 'mi', 'ft', 'yd');
 
         // Option variable control
-        if(empty($options)){
-            return false;
-        }
+       if(empty($options)){
+           return false;
+       }
 
-        if(!strstr($options, ':')){
-            return false;
-        }
+       if(!strstr($options, ':')){
+           return false;
+       }
 
-        $options = explode(':', trim($options, ':'));
+       $options = explode(':', trim($options, ':'));
 
-        if(count($options) != 2){
-            return false;
-        }
+       if(count($options) != 2){
+           return false;
+       }
 
-        list($range, $symbol) = $options;
+       list($range, $symbol) = $options;
 
-        if(!in_array(mb_strtolower($symbol), $symbols)){
-            return false;
-        }
+       if(!in_array(mb_strtolower($symbol), $symbols)){
+           return false;
+       }
 
-        // Points control
+       // Points control
         if(empty($point1) OR empty($point2)){
             return false;
         }
@@ -1537,22 +1536,21 @@ class Mind extends PDO
 
     /**
      * Validation
-     *
+     * 
      * @param array $rule
      * @param array $data
      * @param array $message
-     * @param array $this->errors
      * @return bool
      */
-    public function validate($rule, $data, $message=array()){
+    public function validate($rule, $data, $message = array()){
 
         $extra = '';
         $rules = array();
 
         foreach($rule as $name => $value){
-
+            
             if(strstr($value, '|')){
-                foreach(explode('|', trim($value, '/')) as $val){
+                foreach(explode('|', trim($value, '|')) as $val){
                     $rules[$name][] = $val;
                 }
             } else {
@@ -1564,27 +1562,57 @@ class Mind extends PDO
         foreach($rules as $column => $rule){
             foreach($rule as $name){
 
-                // İlgili kuralın mesajı yoksa kural adı mesaj olarak belirtilir.
-                if(empty($message[$name])){
-                    $message[$name] = $name;
-                }
-
                 if(strstr($name, ':')){
                     $ruleData = explode(':', trim($name, ':'));
                     if(count($ruleData) == 2){
                         list($name, $extra) = $ruleData;
                     }
-
+                    if(count($ruleData) == 3){
+                        list($name, $extra, $limit) = $ruleData;
+                    }
+                    // farklı zaman damgaları kontrolüne müsaade edildi.
+                    if(count($ruleData) > 2 AND strstr($name, ' ')){
+                        $x = explode(' ', $name);
+                        list($left, $right) = explode(' ', $name);
+                        list($name, $date1) = explode(':', $left);
+                        $extra = $date1.' '.$right;
+                    }
                 }
+
+                // İlgili kuralın mesajı yoksa kural adı mesaj olarak belirtilir.
+                if(empty($message[$name])){
+                    $message[$name] = $name;
+                }
+
                 switch ($name) {
-                    // minimum karakter kuralı
+                    // minimum say kuralı
                     case 'min-num':
+                        if(!is_numeric($data[$column])){
+                            $this->errors[$column][$name] = 'Don\'t numeric.';
+                        } else {
+                            if($data[$column]<$extra){
+                                $this->errors[$column][$name] = $message[$name];
+                            }
+                        }
+                    break;
+                    // maksimum sayı kuralı
+                    case 'max-num':
+                        if(!is_numeric($data[$column])){
+                            $this->errors[$column][$name] = 'Don\'t numeric.';
+                        } else {
+                            if($data[$column]>$extra){
+                                $this->errors[$column][$name] = $message[$name];
+                            }
+                        }
+                    break;
+                    // minimum karakter kuralı
+                    case 'min-char':
                         if(strlen($data[$column])<$extra){
                             $this->errors[$column][$name] = $message[$name];
                         }
                         break;
                     // maksimum karakter kuralı
-                    case 'max-num':
+                    case 'max-char':
                         if(strlen($data[$column])>$extra){
                             $this->errors[$column][$name] = $message[$name];
                         }
@@ -1594,19 +1622,19 @@ class Mind extends PDO
                         if(!$this->is_email($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
+                    break;
                     // Zorunlu alan kuralı
                     case 'required':
                         if(empty($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
+                    break;
                     // Telefon numarası kuralı
                     case 'phone':
                         if(!$this->is_phone($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
+                    break;
                     // Tarih kuralı
                     case 'date':
                         if(empty($extra)){
@@ -1615,101 +1643,126 @@ class Mind extends PDO
                         if(!$this->is_date($data[$column], $extra)){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
-                    // json kuralı
+                    break;
+                    // json kuralı 
                     case 'json':
                         if(!$this->is_json($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
-                    // Renk kuralı
+                    break;
+                    // Renk kuralı 
                     case 'color':
                         if(!$this->is_color($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
-                    // URL kuralı
+                    break;
+                    // URL kuralı 
                     case 'url':
                         if(!$this->is_url($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
-                    // https kuralı
+                    break;
+                    // https kuralı 
                     case 'https':
                         if(!$this->is_https($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
-                    // http kuralı
+                    break;
+                    // http kuralı 
                     case 'http':
                         if(!$this->is_http($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
-                    // Numerik karakter kuralı
+                    break;
+                    // Numerik karakter kuralı 
                     case 'numeric':
                         if(!is_numeric($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
-                    // Minumum yaş sınırlaması kuralı
+                    break;
+                    // Minumum yaş sınırlaması kuralı 
                     case 'min-age':
-                        if(!is_numeric($extra) OR !$this->is_date($data[$column], 'Y-m-d') OR !$this->is_age($data[$column], $extra)){
+                        if(!is_numeric($extra) OR !$this->is_date($data[$column], 'Y-m-d')){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
-                    // Maksimum yaş sınırlaması kuralı
+                    break;
+                    // Maksimum yaş sınırlaması kuralı 
                     case 'max-age':
-                        if(!is_numeric($extra) OR !$this->is_date($data[$column], 'Y-m-d') OR !$this->is_age($data[$column], $extra)){
+                        if(!is_numeric($extra) OR !$this->is_date($data[$column], 'Y-m-d')){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
-                    // Benzersiz parametre kuralı
+                    break;
+                    // Benzersiz parametre kuralı 
                     case 'unique':
-                        if($this->do_have($extra, $data[$column], $column)){
-                            $this->errors[$column][$name] = $message[$name];
+
+                        if(!$this->is_table($extra)){
+                            $this->errors[$column][$name][] = 'Table not found.';
                         }
-                        break;
-                    // Doğrulama kuralı
+                        
+                        if(!$this->is_column($extra, $column)){
+                            $this->errors[$column][$name][] = 'Column not found.';
+                        }
+
+                        if(isset($limit)){
+                            $xData = $this->samantha($extra, array($column => $data[$column]));
+                            if(!isset($xData[0])){
+                                $xData = array($xData);
+                            }
+                            if(count($xData) > (int) $limit){
+                                $this->errors[$column][$name] = $message[$name];
+                            }
+                        } else {
+                            if($this->do_have($extra, $data[$column], $column)){
+                                $this->errors[$column][$name] = $message[$name];
+                            }
+                        }
+
+                        
+                    
+                    break;
+                    // Doğrulama kuralı 
                     case 'bool':
                         // Geçerlilik kontrolü
                         $acceptable = array(true, false, 'true', 'false', 0, 1, '0', '1');
-                        if(!in_array($data[$column], $acceptable, true)){
+
+                        if(!in_array($data[$column], $acceptable, true) OR !in_array($extra, $acceptable, true)){
                             $this->errors[$column][$name] = 'True, false, 0 or 1 must be specified.';
                         } else {
-                            if(in_array($extra, $acceptable, true)){
-                                // Karşılaştırma kuralı
-                                if(strcmp((string) $data[$column], (string) $extra == 'true')){
-                                    $this->errors[$column][$name] = 'Incompatibility was detected.';
-                                }
-                            }
+                            if($data[$column] === 'true'){ $data[$column] = true; }
+                            if($data[$column] === 'false'){ $data[$column] = false; }
+                            if($extra === 'true'){ $extra = true; }
+                            if($extra === 'false'){ $extra = false; }
 
+                            if($data[$column] != $extra){
+                                $this->errors[$column][$name] = $message[$name];
+                            }
                         }
+
                         break;
                     // IBAN doğrulama kuralı
                     case 'iban':
                         if(!$this->is_iban($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
+                    break;
                     // ipv4 doğrulama kuralı
                     case 'ipv4':
                         if(!$this->is_ipv4($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
+                    break;
                     // ipv6 doğrulama kuralı
                     case 'ipv6':
                         if(!$this->is_ipv6($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
+                    break;
                     // kan grubu ve uyumu kuralı
                     case 'blood':
                         if(!$this->is_blood($data[$column], $extra)){
                             $this->errors[$column][$name] = $message[$name];
                         }
-                        break;
+                    break;
                     // Koordinat kuralı
                     case 'coordinate':
 
@@ -1732,17 +1785,44 @@ class Mind extends PDO
 
                         }
 
+                    break;
+                    case 'distance':
+                        //  $this->errors[$column][$name] = $message[$name];
+                        //  echo $data[$column];
+                        //  echo $extra;
+                        if(strstr($data[$column], '@')){
+                            $coordinates = explode('@', $data[$column]);
+                            if(count($coordinates) == 2){
+
+                                list($p1, $p2) = $coordinates;
+                                $point1 = explode(',', $p1);
+                                $point2 = explode(',', $p2);
+
+                                if(strstr($extra, ' ')){
+                                    $options = str_replace(' ', ':', $extra);
+                                    if(!$this->is_distance($point1, $point2, $options)){
+                                        $this->errors[$column][$name] = $message[$name];
+                                    }
+                                } else {
+                                    $this->errors[$column][$name] = $message[$name];
+                                }
+                            } else {
+                                $this->errors[$column][$name] = $message[$name];
+                            }
+                        } else {
+                            $this->errors[$column][$name] = $message[$name];
+                        }
                         break;
                     // Geçersiz kural engellendi.
                     default:
                         $this->errors[$column][$name] = 'Invalid rule has been blocked.';
-                        break;
+                    break;
                 }
                 $extra = '';
             }
         }
 
-
+       
         if(empty($this->errors)){
             return true;
         } else {
@@ -1788,19 +1868,29 @@ class Mind extends PDO
 
                         if(is_array($all)){
                             foreach($all as $i => $val ){
-                                $this->post[$name][$i][$key] = $val;
+                                $this->post[$name][$i][$key] = $this->filter($val);
                             }
                         } else {
-                            $this->post[$name][$key] = $all;
+                            $this->post[$name][$key] = $this->filter($all);
                         }
                     }
                 } else {
-                    $this->post[$name] = $value;
+                    $this->post[$name] = $this->filter($value);
                 }
             }
         }
 
         return $this->post;
+    }
+
+    /**
+     * Filter
+     * 
+     * @param string $str
+     * @return string
+     */
+    public function filter($str){
+        return htmlspecialchars($str);
     }
 
     /**
@@ -2284,6 +2374,7 @@ class Mind extends PDO
      * @param string $uri
      * @param mixed $file
      * @param mixed $cache
+     * @return bool
      */
     public function route($uri, $file, $cache=null){
         $public_htaccess = implode("\n", array(
@@ -2401,7 +2492,7 @@ class Mind extends PDO
             }
 
         }
-
+    
     }
 
     /**
@@ -2680,9 +2771,9 @@ class Mind extends PDO
             $type = array($type);
         }
 
-        // eğer ölçü birimi string ise ve müsaade edilen bir ölçü değilse boş dizi geri döndürülür
+        // eğer ölçü birimi dizi değilse ve müsaade edilen bir ölçü değilse boş dizi geri döndürülür
         if(!is_array($type) AND !in_array($type, array_keys($data))){
-            return false;
+            return $output;
         }
 
         // gönderilen tüm ölçü birimlerinin doğruluğu kontrol edilir
