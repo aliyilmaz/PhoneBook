@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 3.1.5
+ * @version    Release: 3.1.6
  * @license    GPL3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -20,7 +20,7 @@ class Mind extends PDO
     private $dbName         =  'mydb';
     private $username       =  'root';
     private $password       =  '';
-    private $charset        =  'utf8';
+    private $charset        =  'utf8mb4';
 
     private $sess_set       =  array(
         'path'                  =>  './session/',
@@ -65,7 +65,10 @@ class Mind extends PDO
         }
 
         try {
-            parent::__construct('mysql:host=' . $this->host . ';dbname=' . $this->dbName, $this->username, $this->password);
+            parent::__construct('mysql:host=' . $this->host, $this->username, $this->password);
+            if($this->is_db($this->dbName)){
+                $this->selectDB($this->dbName);
+            }
             $this->query('SET CHARACTER SET ' . $this->charset);
             $this->query('SET NAMES ' . $this->charset);
             $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
