@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 3.1.6
+ * @version    Release: 3.1.7
  * @license    GPL3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -1628,9 +1628,14 @@ class Mind extends PDO
                     break;
                     // Zorunlu alan kuralı
                     case 'required':
-                        if(empty($data[$column])){
+                        if(!isset($data[$column])){
                             $this->errors[$column][$name] = $message[$name];
+                        } else {
+                            if($data[$column] === ''){
+                                $this->errors[$column][$name] = $message[$name];
+                            }
                         }
+                        
                     break;
                     // Telefon numarası kuralı
                     case 'phone':
@@ -1738,33 +1743,38 @@ class Mind extends PDO
                         }
 
                         if(isset($data[$column]) AND isset($extra)){
-                            if($data[$column] === 'true' OR $data[$column] === '1' OR $data[$column] === 1){
-                                $data[$column] = true;
-                            }
-                            if($data[$column] === 'false' OR $data[$column] === '0' OR $data[$column] === 0){
-                                $data[$column] = false;
-                            }
-
-                            if($extra === 'true' OR $extra === '1' OR $extra === 1){
-                                $extra = true;
-                            }
-                            if($extra === 'false' OR $extra === '0' OR $extra === 0){
-                                $extra = false;
-                            }
-
-                            if($data[$column] !== $extra){
-                                $this->errors[$column][$name] = $message[$name];
+                            if(in_array($data[$column], $acceptable, true) AND in_array($extra, $acceptable, true)){
+                                if($data[$column] === 'true' OR $data[$column] === '1' OR $data[$column] === 1){
+                                    $data[$column] = true;
+                                }
+                                if($data[$column] === 'false' OR $data[$column] === '0' OR $data[$column] === 0){
+                                    $data[$column] = false;
+                                }
+    
+                                if($extra === 'true' OR $extra === '1' OR $extra === 1){
+                                    $extra = true;
+                                }
+                                if($extra === 'false' OR $extra === '0' OR $extra === 0){
+                                    $extra = false;
+                                }
+    
+                                if($data[$column] !== $extra){
+                                    $this->errors[$column][$name] = $message[$name];
+                                }
+                                
+                            } else {
+                                $this->errors[$column][$name] = $wrongTypeMessage;
                             }
                         } 
 
                         if(isset($data[$column]) AND !isset($extra)){
-                            if(!in_array($data[$column], $acceptable)){
+                            if(!in_array($data[$column], $acceptable, true)){
                                 $this->errors[$column][$name] = $wrongTypeMessage;
                             }
                         }
 
-                        if(isset($data[$column]) AND isset($extra)){
-                            if(!in_array($extra, $acceptable)){
+                        if(!isset($data[$column]) AND isset($extra)){
+                            if(!in_array($extra, $acceptable, true)){
                                 $this->errors[$column][$name] = $wrongTypeMessage;
                             }
                         }
@@ -2441,9 +2451,9 @@ class Mind extends PDO
         }
 
         if($this->base_url != '/'){
-            $request = str_replace($this->base_url, '', $_SERVER['REQUEST_URI']);
+            $request = str_replace($this->base_url, '', rawurldecode($_SERVER['REQUEST_URI']));
         } else {
-            $request = trim($_SERVER['REQUEST_URI'], '/');
+            $request = trim(rawurldecode($_SERVER['REQUEST_URI']), '/');
         }
 
         $fields     = array();
@@ -2698,7 +2708,10 @@ class Mind extends PDO
             curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
             $data = curl_exec($ch);
             curl_close($ch);
-
+            
+            if(empty($data)){
+                $data = file_get_contents($url);
+            }
         } else {
             $data = $url;
         }
