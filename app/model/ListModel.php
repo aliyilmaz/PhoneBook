@@ -4,33 +4,23 @@ $tblname = 'phonebook';
 $list = array();
 $limit = 5;
 $sort = 'DESC';
-$keyword = '';
-$columns = array();
-$patterns = array();
 $column  = $this->increments('phonebook');
 
-if(!empty($this->post['keyword'])){
-    $keyword = $this->post['keyword'];
-}
-$patterns['keyword'] = $keyword;
+if($this->post){
 
-$model = array();
-
-// Or parameters.
-if(!empty($this->post['columns'])){
-    foreach ($this->post['columns'] as $xcolumn){
-        $model[$xcolumn] = '%'.$keyword.'%';
+    $options['search']['scope'] = 'LIKE';
+    
+    if(!isset($this->post['keyword'])){
+        $this->post['keyword'] = '';
     }
-} else {
-    foreach ($this->columnList($tblname) as $xcolumn){
-        $model[$xcolumn] = '%'.$keyword.'%';
+    
+    if(!isset($this->post['columns'])){
+        $this->post['columns'] = $this->columnList($tblname);
     }
-}
-$patterns['or'] = $model;
-
-// Column names
-if(!empty($model)){
-    $patterns['columns'] = array_keys($model);
+    foreach ($this->post['columns'] as $column) {
+        $options['search']['or'][] = array($column=>'%'.$this->post['keyword'].'%');
+    }
+    
 }
 
 // Limit control
@@ -39,19 +29,15 @@ if(!empty($this->post['limit'])){
 }
 
 // Sort control
-if(!empty($this->post['sort'])){
-    if(in_array(mb_strtoupper($this->post['sort']), array('DESC', 'ASC'))){
-        $sort = $this->post['sort'];
-    }
+if(empty($this->post['sort'])){
+    $this->post['sort'] =  'desc';
 }
 
-$options = array(
-    'search'=> $patterns,
-    'limit'=>array(
+$options['limit'] = array(
         'end'   =>  $limit
-    ),
-    'sort'  =>  $column.':'.$sort
 );
+
+$options['sort'] = $column.':'.$this->post['sort'];
 
 $list = $this->getData($tblname, $options);
 
