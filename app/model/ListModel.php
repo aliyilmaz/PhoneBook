@@ -1,10 +1,9 @@
 <?php
 $tblname = 'phonebook';
 
-$list = array();
-$limit = 5;
-$sort = 'DESC';
-$column  = $this->increments('phonebook');
+$list       = array();
+$limit      = 5;
+$column     = $this->increments('phonebook');
 
 if($this->post){
 
