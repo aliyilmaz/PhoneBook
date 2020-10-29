@@ -2,17 +2,22 @@
 
 $tblname    = 'phonebook';
 
-$options = array(
-    'id:increments',
-    'name',
-    'phone',
-    'email',
-    'created_at',
-    'updated_at'
-);
+if(!$this->is_db($this->dbname)){ 
+    $this->dbCreate($this->dbname);
+    $this->redirect();
+}
+if(!$this->is_table($tblname)){ 
 
-if(!$this->is_db($this->dbname)){ $this->dbCreate($this->dbname);}
-if($this->tableCreate($tblname, $options)){
+    $options = array(
+        'id:increments',
+        'name',
+        'phone',
+        'email',
+        'created_at',
+        'updated_at'
+    );
+
+    $this->tableCreate($tblname, $options);
 
     $rows = array(
         array(
@@ -37,5 +42,4 @@ if($this->tableCreate($tblname, $options)){
 
     $this->insert($tblname, $rows);
 }
-
 ?>
