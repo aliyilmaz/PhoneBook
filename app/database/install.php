@@ -11,6 +11,7 @@ $options = array(
     'updated_at'
 );
 
+if(!$this->is_db($this->dbname)){ $this->dbCreate($this->dbname);}
 if($this->tableCreate($tblname, $options)){
 
     $rows = array(
