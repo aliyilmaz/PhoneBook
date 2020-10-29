@@ -17,7 +17,7 @@
 class Mind extends PDO
 {
     private $host           =  'localhost';
-    private $dbname         =  'mydb';
+    private $dbname         =  'mydb1';
     private $username       =  'root';
     private $password       =  '';
     private $charset        =  'utf8mb4';
@@ -2128,7 +2128,7 @@ class Mind extends PDO
     public function redirect($url = '', $delay = 0){
 
         if(!$this->is_http($url) AND !$this->is_https($url) OR empty($url)){
-            $url = 'http://'.$_SERVER['SERVER_NAME'].$this->base_url.$url;
+            $url = $this->base_url.$url;
         }
 
         if(0 !== $delay){
