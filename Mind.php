@@ -17,7 +17,7 @@
 class Mind extends PDO
 {
     private $host           =  'localhost';
-    private $dbname         =  'mydb1';
+    private $dbname         =  'mydb';
     private $username       =  'root';
     private $password       =  '';
     private $charset        =  'utf8mb4';
