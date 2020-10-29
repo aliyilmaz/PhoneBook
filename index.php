@@ -1,7 +1,15 @@
 <?php
 
 require_once './Mind.php';
-$Mind = new Mind();
+
+$conf = array(
+    'host'      =>  'localhost',
+    'dbname'    =>  'mydb',
+    'username'  =>  'root',
+    'password'  =>  ''
+);
+
+$Mind = new Mind($conf);
 
 
 $Mind->route('/', 'app/views/index', array('app/database/install', 'app/model/ListModel'));
