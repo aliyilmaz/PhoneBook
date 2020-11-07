@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 3.2.2
+ * @version    Release: 4.0.0
  * @license    GPL3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -1155,8 +1155,8 @@ class Mind extends PDO
                 $result = $item['Auto_increment'];
             }
 
-            if(empty($result)){
-                return 0;
+            if($result>1){
+                return $result;
             } else {
                 return $result+1;
             }
@@ -1193,6 +1193,160 @@ class Mind extends PDO
             return $columns;
         }
 
+    }
+
+    /**
+     * Table structure converter for Mind
+     * 
+     * @param string $tblName
+     * @return array
+     */
+    public function tableInterpriter($tblName){
+
+        $result =   array();
+        $sql    =   'SHOW COLUMNS FROM ' . $tblName;
+
+        try{
+
+            $query = $this->query($sql, PDO::FETCH_ASSOC);
+
+            foreach ( $query as $row ) {
+                if(strstr($row['Type'], '(')){
+                    $row['Length'] = implode('', $this->get_contents('(',')', $row['Type']));
+                    $row['Type']   = explode('(', $row['Type'])[0];
+                }
+                switch ($row['Type']) {
+                    case 'int':
+                        if($row['Extra'] == 'auto_increment'){
+                            $row = $row['Field'].':increments:'.$row['Length'];
+                        } else {
+                            $row = $row['Field'].':int:'.$row['Length'];
+                        }
+                        break;
+                    case 'varchar':
+                        $row = $row['Field'].':string:'.$row['Length'];
+                        break;
+                    case 'text':
+                        $row = $row['Field'].':small';
+                        break;
+                    case 'mediumtext':
+                        $row = $row['Field'].':medium';
+                        break;
+                    case 'longtext':
+                        $row = $row['Field'].':large';
+                        break;
+                    case 'decimal':
+                        $row = $row['Field'].':decimal:'.$row['Length'];
+                        break;
+                }
+                $result[] = $row;
+            }
+
+            return $result;
+
+        } catch (Exception $e){
+            return $result;
+        }
+    }
+
+    /**
+     * Database backup method
+     * 
+     * @param string|array $dbnames
+     * @param string $directory
+     * @return json|export
+     */
+    public function backup($dbnames, $directory='')
+    {
+        $result = array();
+
+        if(is_string($dbnames)){
+            $dbnames = array($dbnames);
+        }
+
+        foreach ($dbnames as $dbname) {
+            
+            // database select
+            $this->selectDB($dbname);
+            // tabular data is obtained
+            foreach ($this->tableList() as $tblName) {
+                
+                $incrementColumn = $this->increments($tblName);
+                
+                if(!empty($incrementColumn)){
+                    $increments = array(
+                        'auto_increment'=>array(
+                            'length'=>$this->newId($tblName)
+                        )
+                    );
+                }
+
+                $result[$dbname][$tblName]['config'] = $increments;
+                $result[$dbname][$tblName]['schema'] = $this->tableInterpriter($tblName);
+                $result[$dbname][$tblName]['data'] = $this->getData($tblName);
+            }
+        }
+        
+        $data = json_encode($result);
+        $backupFile = 'backup_'.$this->permalink($this->timestamp, array('delimiter'=>'_')).'.json';
+        if(!empty($directory)){
+            if(is_dir($directory)){
+                $this->write($data, $directory.'/'.$backupFile);
+            } 
+        } else {
+            header('Access-Control-Allow-Origin: *');
+            header("Content-type: application/json; charset=utf-8");
+            header('Content-Disposition: attachment; filename="'.$backupFile.'"');
+            echo $data;
+        }
+        
+    }
+
+    /**
+     * Method of restoring database backup
+     * 
+     * @param string|array $paths
+     * @return array
+     */
+    public function restore($paths){
+
+        $result = array();
+        
+        if(is_string($paths)){
+            $paths = array($paths);
+        }
+
+        foreach ($paths as $path) {
+            if(file_exists($path)){
+                foreach (json_decode(file_get_contents($path), true) as $dbname => $rows) {
+                     if(!$this->is_db($dbname)){ 
+
+                        $this->dbCreate($dbname);
+                        $this->selectDB($dbname);
+
+                        foreach ($rows as $tblName => $row) {
+                            $this->tableCreate($tblName, $row['schema']);
+                            if(!empty($row['config']['auto_increment']['length'])){
+                                $length = $row['config']['auto_increment']['length'];
+                                $sql = "ALTER TABLE ".$tblName." AUTO_INCREMENT = ".$length;
+                                $this->query($sql);
+                            }
+                            if(!empty($row['data'])){
+                                $this->insert($tblName, $row['data']);
+                            }
+
+                            $result[$dbname][$tblName] = $row;
+                        }   
+                        
+                    }
+                    
+                }
+
+                
+            }
+        }
+
+        return $result;
     }
 
     /**
