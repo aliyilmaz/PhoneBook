@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 4.0.1
+ * @version    Release: 4.0.2
  * @license    GPL3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -812,7 +812,7 @@ class Mind extends PDO
 
             }
 
-            $keywordSql .= implode(' OR ', $prepareArray);
+            $keywordSql .= '('.implode(' OR ', $prepareArray).')';
 
         }
 
@@ -853,7 +853,7 @@ class Mind extends PDO
                     $executeArray[] = $value;
                 }
                 
-                $orSql .= implode(' OR ', $x[$key]);
+                $orSql .= '('.implode(' OR ', $x[$key]).')';
 
                 if(count($options['search']['or'])>$key+1){
                     $orSql .= ' '.$options['search']['delimiter']['or']. ' ';
@@ -876,7 +876,7 @@ class Mind extends PDO
                     $executeArray[] = $value;
                 }
                 
-                $andSql .= implode(' AND ', $x[$key]);
+                $andSql .= '('.implode(' AND ', $x[$key]).')';
 
                 if(count($options['search']['and'])>$key+1){
                     $andSql .= ' '.$options['search']['delimiter']['and']. ' ';
@@ -1358,6 +1358,116 @@ class Mind extends PDO
             }
         }
 
+        return $result;
+    }
+
+    /**
+     * Paging method
+     * 
+     * @param string $tblName
+     * @param array $options
+     * @return json|array
+     */
+    public function pagination($tblName, $options=array()){
+
+        $result = array();
+        
+        /* -------------------------------------------------------------------------- */
+        /*                                   FORMAT                                   */
+        /* -------------------------------------------------------------------------- */
+
+        if(!isset($options['format'])){
+            $format = '';
+        } else {
+            $format = $options['format'];
+            unset($options['format']);
+        }
+
+
+        /* -------------------------------------------------------------------------- */
+        /*                                    LIMIT                                   */
+        /* -------------------------------------------------------------------------- */
+        $limit = 5;
+        if(empty($options['limit'])){
+            $options['limit'] = $limit;
+        } else {
+             if(!is_numeric($options['limit'])){
+                $options['limit'] = $limit;
+             }
+        }
+        $end = $options['limit'];
+
+        /* -------------------------------------------------------------------------- */
+        /*                                    PAGE                                    */
+        /* -------------------------------------------------------------------------- */
+
+        $page = 1;
+        $prefix = 'p';
+        if(!empty($options['prefix'])){
+            if(!is_numeric($options['prefix'])){
+                $prefix = $options['prefix'];
+            }
+        }
+
+        if(!isset($this->post[$prefix])){
+           
+            switch ($format) {
+                case 'json':
+                    return json_encode($result, JSON_PRETTY_PRINT); 
+                break;
+            }
+            return $result;
+        }
+
+        if(!empty($this->post[$prefix])){
+            if(is_numeric($this->post[$prefix])){
+                $page = $this->post[$prefix];
+            }
+        } else {
+            $this->post[$prefix] = $page;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                                   COLUMN                                   */
+        /* -------------------------------------------------------------------------- */
+
+        if(!isset($options['column']) OR empty($options['column'])){
+            $options['column'] = array();
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                                   SEARCH                                   */
+        /* -------------------------------------------------------------------------- */
+
+        if(!isset($options['search']) OR empty($options['search'])){
+            $options['search'] = array();
+        }
+
+        if(!is_array($options['search'])){
+            $options['search'] = array();
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*            Finding the total number of pages and starting points           */
+        /* -------------------------------------------------------------------------- */
+        $totalRow = count($this->getData($tblName, $options));
+        $totalPage = ceil($totalRow/$end);
+        $start = ($page*$end)-$end;
+
+        $options = array(
+                'limit'=>array(
+                    'start'=>$start,
+                    'end'=>$end
+                ),
+                'search'=>$options['search'],
+                'column'=>$options['column']
+            );
+        $result = array('data'=>$this->getData($tblName, $options), 'totalPage'=>$totalPage, 'prefix'=>$prefix);
+        switch ($format) {
+            case 'json':
+                return json_encode($result, JSON_PRETTY_PRINT); 
+            break;
+        }
         return $result;
     }
 
