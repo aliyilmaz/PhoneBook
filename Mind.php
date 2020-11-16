@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 4.0.2
+ * @version    Release: 4.0.3
  * @license    GPL3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -1383,6 +1383,12 @@ class Mind extends PDO
             unset($options['format']);
         }
 
+        /* -------------------------------------------------------------------------- */
+        /*                                    SORT                                    */
+        /* -------------------------------------------------------------------------- */
+        if(!isset($options['sort'])){
+            $options['sort'] = '';
+        } 
 
         /* -------------------------------------------------------------------------- */
         /*                                    LIMIT                                   */
@@ -1460,9 +1466,18 @@ class Mind extends PDO
                     'end'=>$end
                 ),
                 'search'=>$options['search'],
-                'column'=>$options['column']
+                'column'=>$options['column'],
+                'sort'=>$options['sort']
             );
-        $result = array('data'=>$this->getData($tblName, $options), 'totalPage'=>$totalPage, 'prefix'=>$prefix);
+
+        $result = array(
+            'data'=>$this->getData($tblName, $options), 
+            'prefix'=>$prefix,
+            'limit'=>$end,
+            'totalPage'=>$totalPage,
+            'page'=>$page
+        );
+
         switch ($format) {
             case 'json':
                 return json_encode($result, JSON_PRETTY_PRINT); 
