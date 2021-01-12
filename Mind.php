@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 4.1.3
+ * @version    Release: 4.1.6
  * @license    GPL3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -2341,6 +2341,80 @@ class Mind extends PDO
         }
     }
 
+    /**
+     * Method of determining the access 
+     * directive.
+     */
+    public function accessGenerate(){
+
+        $filename = '';
+        $public_content = '';
+        $private_content = '';
+        
+        switch ($this->getSoftware()) {
+            case 'Apache':
+                $public_content = implode("\n", array(
+                    'RewriteEngine On',
+                    'RewriteCond %{REQUEST_FILENAME} -s [OR]',
+                    'RewriteCond %{REQUEST_FILENAME} -l [OR]',
+                    'RewriteCond %{REQUEST_FILENAME} -d',
+                    'RewriteRule ^.*$ - [NC,L]',
+                    'RewriteRule ^.*$ index.php [NC,L]'
+                ));
+                $private_content = 'Deny from all';
+                $filename = '.htaccess';
+            break;
+            case 'Microsoft-IIS':
+                $public_content = implode("\n", array(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+                "<configuration>",
+                    "\t<system.webServer>",
+                        "\t\t<rewrite>",
+                        "\t\t\t<rules>",
+                            "\t\t\t\t<rule name=\"Imported Rule 1\" stopProcessing=\"true\">",
+                            "\t\t\t\t\t<match url=\"^(.*)$\" ignoreCase=\"false\" />",
+                            "\t\t\t\t\t<conditions>",
+                            "\t\t\t\t\t\t<add input=\"{REQUEST_FILENAME}\" matchType=\"IsFile\" ignoreCase=\"false\" negate=\"true\" />",
+                            "\t\t\t\t\t\t<add input=\"{REQUEST_FILENAME}\" matchType=\"IsDirectory\" ignoreCase=\"false\" negate=\"true\" />",
+                            "\t\t\t\t\t</conditions>",
+                            "\t\t\t\t\t<action type=\"Rewrite\" url=\"index.php?{R:1}\" appendQueryString=\"true\" />",
+                        "\t\t\t\t</rule>",
+                        "\t\t\t</rules>",
+                        "\t\t</rewrite>",
+                   "\t</system.webServer>",
+                '</configuration>'
+            ));
+            
+            $private_content = implode("\n", array(
+                "\n<authorization>",
+                "\t<deny users=\"?\"/>",
+                "</authorization>"
+            ));
+            $filename = 'web.config';
+            break;
+            
+            default:
+            
+            break;
+        }
+
+        if(!file_exists($filename)){
+            $this->write($public_content, $filename);
+        }
+
+        $dirs = array_filter(glob('*'), 'is_dir');
+
+        if(!empty($dirs)){
+            foreach ($dirs as $dir){
+
+                if(!file_exists($dir.'/'.$filename)){
+                    $this->write($private_content, $dir.'/'.$filename);
+                }
+
+            }
+        }
+        
+    }
 
     /**
      * Pretty Print
@@ -2993,6 +3067,33 @@ class Mind extends PDO
     }
 
     /**
+     * Detecting an operating system
+     * @return string
+     */
+    public function getOS(){
+        $os = PHP_OS;
+        switch (true) {
+            case stristr($os, 'dar'): return 'Darwin';
+            case stristr($os, 'win'): return 'Windows';
+            case stristr($os, 'lin'): return 'Linux';
+            default : return 'Unknown';
+        }
+    }
+
+    /**
+     * Detecting an server software
+     * @return string
+     */
+    public function getSoftware(){
+        $software = $_SERVER['SERVER_SOFTWARE'];
+        switch (true) {
+            case stristr($software, 'apac'): return 'Apache';
+            case stristr($software, 'micr'): return 'Microsoft-IIS';
+            default : return 'Unknown';
+        }
+    }
+
+    /**
      * Routing manager.
      *
      * @param string $uri
@@ -3001,33 +3102,9 @@ class Mind extends PDO
      * @return bool
      */
     public function route($uri, $file, $cache=null){
-        $public_htaccess = implode("\n", array(
-            'RewriteEngine On',
-            'RewriteCond %{REQUEST_FILENAME} -s [OR]',
-            'RewriteCond %{REQUEST_FILENAME} -l [OR]',
-            'RewriteCond %{REQUEST_FILENAME} -d',
-            'RewriteRule ^.*$ - [NC,L]',
-            'RewriteRule ^.*$ index.php [NC,L]'
-        ));
-
-        $private_htaccess = "Deny from all";
-        $htaccess_file = '.htaccess';
-
-        if(!file_exists($htaccess_file)){
-            $this->write($public_htaccess, $htaccess_file);
-        }
-
-        $dirs = array_filter(glob('*'), 'is_dir');
-
-        if(!empty($dirs)){
-            foreach ($dirs as $dir){
-
-                if(!file_exists($dir.'/'.$htaccess_file)){
-                    $this->write($private_htaccess, $dir.'/'.$htaccess_file);
-                }
-
-            }
-        }
+        
+        // Access directives are being created.
+        $this->accessGenerate();
 
         if(empty($file)){
             return false;
