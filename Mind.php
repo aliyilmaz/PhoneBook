@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 4.1.6
+ * @version    Release: 4.1.7
  * @license    GPL3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -30,6 +30,7 @@ class Mind extends PDO
 
     public  $post;
     public  $base_url;
+    public  $allow_folders  =   'public';
     public  $page_current   =   '';
     public  $page_back      =   '';
     public  $timezone       =  'Europe/Istanbul';
@@ -62,6 +63,10 @@ class Mind extends PDO
 
         if(isset($conf['charset'])){
             $this->charset = $conf['charset'];
+        }
+
+        if(isset($conf['allow_folders'])){
+            $this->allow_folders = $conf['allow_folders'];
         }
 
         try {
@@ -2349,8 +2354,15 @@ class Mind extends PDO
 
         $filename = '';
         $public_content = '';
-        $private_content = '';
+        $deny_content = '';
+        $allow_content = '';
         
+        if(!empty($this->allow_folders)){
+            if(!is_array($this->allow_folders)){
+                $allow_folders = array($this->allow_folders);
+            }
+        }
+
         switch ($this->getSoftware()) {
             case 'Apache':
                 $public_content = implode("\n", array(
@@ -2361,7 +2373,8 @@ class Mind extends PDO
                     'RewriteRule ^.*$ - [NC,L]',
                     'RewriteRule ^.*$ index.php [NC,L]'
                 ));
-                $private_content = 'Deny from all';
+                $deny_content = 'Deny from all';
+                $allow_content = 'Allow from all';
                 $filename = '.htaccess';
             break;
             case 'Microsoft-IIS':
@@ -2385,10 +2398,17 @@ class Mind extends PDO
                 '</configuration>'
             ));
             
-            $private_content = implode("\n", array(
-                "\n<authorization>",
+            $deny_content = implode("\n", array(
+                "<authorization>",
                 "\t<deny users=\"?\"/>",
                 "</authorization>"
+            ));
+            $allow_content = implode("\n", array(
+                "<configuration>",
+                "\t<system.webServer>",
+                "\t\t<directoryBrowse enabled=\"true\" showFlags=\"Date,Time,Extension,Size\" />",
+                "\t\t\t</system.webServer>",
+                "</configuration>"
             ));
             $filename = 'web.config';
             break;
@@ -2407,8 +2427,16 @@ class Mind extends PDO
         if(!empty($dirs)){
             foreach ($dirs as $dir){
 
+                if(!empty($allow_folders)){
+                    foreach ($allow_folders as $allow_folder) {
+                        if($allow_folder == $dir AND !file_exists($dir.'/'.$filename)){
+                            $this->write($allow_content, $dir.'/'.$filename);
+                        }
+                    }
+                }
+                
                 if(!file_exists($dir.'/'.$filename)){
-                    $this->write($private_content, $dir.'/'.$filename);
+                    $this->write($deny_content, $dir.'/'.$filename);
                 }
 
             }
