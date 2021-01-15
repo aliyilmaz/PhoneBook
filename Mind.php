@@ -2390,7 +2390,7 @@ class Mind extends PDO
                             "\t\t\t\t\t\t<add input=\"{REQUEST_FILENAME}\" matchType=\"IsFile\" ignoreCase=\"false\" negate=\"true\" />",
                             "\t\t\t\t\t\t<add input=\"{REQUEST_FILENAME}\" matchType=\"IsDirectory\" ignoreCase=\"false\" negate=\"true\" />",
                             "\t\t\t\t\t</conditions>",
-                            "\t\t\t\t\t<action type=\"Rewrite\" url=\"index.php?{R:1}\" appendQueryString=\"true\" />",
+                            "\t\t\t\t\t<action type=\"Rewrite\" url=\"index.php\" appendQueryString=\"true\" />",
                         "\t\t\t\t</rule>",
                         "\t\t\t</rules>",
                         "\t\t</rewrite>",
@@ -3195,9 +3195,7 @@ class Mind extends PDO
             } else {
                 $this->post = array_diff($params, array('', ' '));
             }
-        } else {
-            unset($this->post[$uriData['name']]);
-        }
+        } 
 
         if(!empty($request)){
 
