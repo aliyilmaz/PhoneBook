@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 4.2.1
+ * @version    Release: 4.2.2
  * @license    GPL3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -2044,6 +2044,17 @@ class Mind extends PDO
      */
     public function validate($rule, $data, $message = array()){
 
+        $dataColumns = array_keys($data);
+        $ruleColumns = array_keys($rule);
+        foreach ($dataColumns as $column) {
+            if(!in_array($column, $ruleColumns)){
+                $this->errors[$column] = 'Not allowed column name.';
+            }
+        }
+        if(!empty($this->errors)){
+            return false;
+        }
+
         $extra = '';
         $rules = array();
 
@@ -2058,7 +2069,6 @@ class Mind extends PDO
             }
 
         }
-
 
         foreach($rules as $column => $rule){
             foreach($rule as $name){
