@@ -1,5 +1,15 @@
 <?php $this->mindLoad('app/views/layout/header'); ?>
-
+<style>
+.pageSelected{
+    padding:5px;
+    margin-right:4px;
+    letter-spacing: 3px;
+    text-decoration: none;
+    text-align: center;
+    background-color: #444;
+    color: #fff;
+}
+</style>
 <form action="<?=$this->base_url;?>" method="post">
     <div class="row">
        <div class="col-sm-2">
@@ -54,7 +64,8 @@
         </tr>
         </thead>
         <tbody role="rowgroup">
-        <?php foreach ($list as $key => $row) { ?>
+        <?=$this->mindLoad('app/model/ListModel');?>
+        <?php foreach ($data['data'] as $key => $row) { ?>
             <tr role="row">
                 <td role="cell" data-label="Id"><?=$row['id'];?></td>
                 <td role="cell" data-label="Name"><?=$row['name'];?></td>
@@ -72,6 +83,29 @@
                 </td>
             </tr>
         <?php } ?>
+            <tr>
+                <td>
+                
+                    <?php 
+                    /* -------------------------------------------------------------------------- */
+                    /*                                 NAVIGATION                                 */
+                    /* -------------------------------------------------------------------------- */
+                    $prefix = $data['prefix'];
+                    for ($i=1; $i <= $data['totalPage']; $i++) { 
+
+                        echo "<a ";
+
+                        if($i == $this->post[$prefix] OR empty($this->post[$prefix])){ 
+                            echo 'class="pageSelected" ';
+                        }
+                        echo 'href="'.$this->base_url.'page/'.$i.'">'.$i.'</a>';
+                    }
+
+                    
+                    ?>
+                </td>
+
+            </tr>
         </tbody>
     </table>
 </form>

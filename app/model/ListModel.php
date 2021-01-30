@@ -1,9 +1,9 @@
 <?php
 $tblname = 'phonebook';
+$column  = $this->increments($tblname);
 
-$list       = array();
-$limit      = 5;
-$column     = $this->increments('phonebook');
+// url: pagination.php?page OR pagination.php?page=1
+// url: pagination.php?p OR pagination.php?p=1
 
 if($this->post){
 
@@ -21,10 +21,9 @@ if($this->post){
     }
     
 }
-
 // Limit control
 if(!empty($this->post['limit'])){
-    $limit = $this->post['limit'];
+    $options['limit'] = $this->post['limit'];
 }
 
 // Sort control
@@ -32,12 +31,8 @@ if(empty($this->post['sort'])){
     $this->post['sort'] =  'desc';
 }
 
-$options['limit'] = array(
-        'end'   =>  $limit
-);
-
 $options['sort'] = $column.':'.$this->post['sort'];
 
-$list = $this->getData($tblname, $options);
+$data = $this->pagination($tblname, $options);
 
 ?>
