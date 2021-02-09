@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 4.2.8
+ * @version    Release: 4.2.9
  * @license    GPL3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -36,7 +36,7 @@ class Mind extends PDO
     public  $timezone       =  'Europe/Istanbul';
     public  $timestamp;
     public  $lang           =  array(
-        'table'                 =>  'languages',
+        'table'                 =>  'translations',
         'column'                =>  'lang',
         'haystack'              =>  'name',
         'return'                =>  'text',
