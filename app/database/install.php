@@ -3,8 +3,7 @@
 $tblname    = 'phonebook';
 
 if(!$this->is_db($this->dbname)){ 
-    $this->dbCreate($this->dbname);
-    $this->redirect();
+    $this->dbCreate($this->dbname);    
 }
 if(!$this->is_table($tblname)){ 
 
