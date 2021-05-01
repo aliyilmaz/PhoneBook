@@ -30,7 +30,7 @@
     <a href="<?=$this->base_url;?>" class="btn btn-default btn-xs btn-warning">
         <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Cancel
     </a>
-
+    <?=$_SESSION['csrf']['input'];?>
 </form>
 
 <?php $this->mindLoad('app/views/layout/footer'); ?>

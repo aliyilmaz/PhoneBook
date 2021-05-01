@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 4.4.9
+ * @version    Release: 4.5.0
  * @license    GPL3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -2756,6 +2756,44 @@ class Mind extends PDO
 
         }
 
+        $limit = 200;
+        $name = 'csrf_token';
+        
+        if(!isset($conf['firewall']['csrf'])){
+            $conf['firewall']['csrf'] = true;
+        }
+        if($conf['firewall']['csrf'] !== false){
+
+            if(is_array($conf['firewall']['csrf'])){
+                if(isset($conf['firewall']['csrf']['name']) AND !isset($conf['firewall']['csrf']['limit'])){
+                $name = $conf['firewall']['csrf']['name'];
+                }
+                if(!isset($conf['firewall']['csrf']['name']) AND isset($conf['firewall']['csrf']['limit'])){
+                    $limit = $conf['firewall']['csrf']['limit'];
+                }
+                if(isset($conf['firewall']['csrf']['name']) AND isset($conf['firewall']['csrf']['limit'])){
+                    $name = $conf['firewall']['csrf']['name'];
+                    $limit = $conf['firewall']['csrf']['limit'];
+                }
+            }
+            
+            if(isset($this->post[$name]) AND isset($_SESSION['csrf']['token']) AND $_SERVER['REQUEST_METHOD'] === 'POST'){
+                
+                if($this->post[$name] !== $_SESSION['csrf']['token']){
+                    die('A valid token could not be found.');
+                } else {
+                    unset($this->post[$name]);
+                    unset($_SESSION['csrf']);
+                }
+            } else {
+                $_SESSION['csrf'] = array(
+                    'name'  =>  $name,
+                    'token' =>  $this->generateToken($limit)                    
+                );
+                $_SESSION['csrf']['input'] = "<input type=\"hidden\" name=\"".$_SESSION['csrf']['name']."\" value=\"".$_SESSION['csrf']['token']."\">";
+            }
+            
+        } 
     }
 
     /**
@@ -3745,6 +3783,12 @@ class Mind extends PDO
                 return array_unique($result[1]);
             } else {
                 return $result;
+            }
+        }
+
+        if(is_array($result)){
+            if(empty($result[0]) AND empty($result[1])){
+                return [];
             }
         }
 
