@@ -30,9 +30,4 @@
     <?=$_SESSION['csrf']['input'];?>
 </form>
 
-<?php 
-$this->print_pre($this->post);
-
-?>
-
 <?php $this->mindLoad('app/views/layout/footer'); ?>
