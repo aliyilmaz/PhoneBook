@@ -1,4 +1,5 @@
 <?php $this->mindLoad('app/views/layout/header'); ?>
+
 <style>
 .pageSelected{
     padding:5px;
@@ -108,6 +109,7 @@
             </tr>
         </tbody>
     </table>
+    <?=$_SESSION['csrf']['input'];?>
 </form>
 
 <?php $this->mindLoad('app/views/layout/footer'); ?>
