@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,15 +12,15 @@
     <title>PhoneBook</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="style/css/bootstrap.min.css" rel="stylesheet">
+    <link href="public/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="style/css/sticky-footer-navbar.css" rel="stylesheet">
+    <link href="public/css/sticky-footer-navbar.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <script src="public/js/html5shiv.min.js"></script>
+    <script src="public/js/respond.min.js"></script>
     <![endif]-->
 </head>
 

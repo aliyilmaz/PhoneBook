@@ -11,8 +11,8 @@
 <!-- Bootstrap core JavaScript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-<script src="style/js/jquery.min.js"></script>
-<script src="style/js/bootstrap.min.js"></script>
+<script src="public/js/jquery.min.js"></script>
+<script src="public/js/bootstrap.min.js"></script>
 
 
 </body>

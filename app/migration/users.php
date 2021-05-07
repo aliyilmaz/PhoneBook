@@ -1,11 +1,6 @@
 <?php
 
-$tblname    = 'phonebook';
-
-if(!$this->is_db($this->dbname)){ 
-    $this->dbCreate($this->dbname);    
-}
-if(!$this->is_table($tblname)){ 
+if(!$this->is_table('phonebook')){ 
 
     $options = array(
         'id:increments',
@@ -16,7 +11,7 @@ if(!$this->is_table($tblname)){
         'updated_at'
     );
 
-    $this->tableCreate($tblname, $options);
+    $this->tableCreate('phonebook', $options);
 
     $rows = array(
         array(
@@ -39,6 +34,7 @@ if(!$this->is_table($tblname)){
         )
     );
 
-    $this->insert($tblname, $rows);
+    $this->insert('phonebook', $rows);
 }
+
 ?>

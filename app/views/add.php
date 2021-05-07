@@ -27,6 +27,26 @@
     <a href="<?=$this->base_url;?>" class="btn btn-default btn-xs btn-warning">
         <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Cancel
     </a>
+    <hr>
+    <?php
+    if(!empty($this->post)){
+        if(!empty($this->errors)){
+            echo '<div class="alert alert-warning" role="alert">';
+            foreach ($this->errors as $errors) {
+                foreach ($errors as $key => $error) {
+                    echo '<strong style="color:red;">*</strong> '.$error.'</strong><br>';    
+                }
+            }
+            echo '</div>';
+        } else {
+            if(count($this->post)>1){
+                echo '<div class="alert alert-success" role="alert">Added registration. <strong id="redirect-time"></strong></div>';    
+                $this->redirect($this->page_back, 5, '#redirect-time');
+            }
+        }
+    }
+    ?>
+    
     <?=$_SESSION['csrf']['input'];?>
 </form>
 

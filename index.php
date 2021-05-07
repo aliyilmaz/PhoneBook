@@ -12,8 +12,8 @@ $conf = array(
 $Mind = new Mind($conf);
 
 
-$Mind->route('/', 'app/views/index', array('app/database/install', 'app/model/ListModel'));
-$Mind->route('page:p', 'app/views/index', 'app/model/ListModel');
-$Mind->route('add', 'app/views/add', array('app/controller/RecordController:add'));
-$Mind->route('edit:id', 'app/views/edit', array('app/model/RecordModel', 'app/controller/RecordController:edit'));
-$Mind->route('remove:id', 'app/views/remove', array('app/model/RecordModel', 'app/controller/RecordController:remove'));
+$Mind->route('/', 'app/views/index', array('app/migration/install', 'app/model/list'));
+$Mind->route('page:p', 'app/views/index', 'app/model/list');
+$Mind->route('add', 'app/views/add', 'app/request/add');
+$Mind->route('edit:id', 'app/views/edit', array('app/request/edit', 'app/model/record'));
+$Mind->route('remove:id', 'app/views/remove', array('app/model/record', 'app/request/remove'));

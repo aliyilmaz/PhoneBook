@@ -65,7 +65,6 @@
         </tr>
         </thead>
         <tbody role="rowgroup">
-        <?=$this->mindLoad('app/model/ListModel');?>
         <?php foreach ($data['data'] as $key => $row) { ?>
             <tr role="row">
                 <td role="cell" data-label="Id"><?=$row['id'];?></td>
