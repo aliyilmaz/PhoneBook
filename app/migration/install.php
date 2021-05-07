@@ -5,7 +5,7 @@ if(!$this->is_db($this->dbname)){
 }
 
 $this->mindLoad([
-    'app/migration/users'
+    'app/migration/phonebook'
 ]);
 
 ?>
