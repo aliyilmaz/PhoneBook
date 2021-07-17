@@ -3,7 +3,7 @@
 /**
  *
  * @package    Mind
- * @version    Release: 4.5.9
+ * @version    Release: 4.6.0
  * @license    GPL3
  * @author     Ali YILMAZ <aliyilmaz.work@gmail.com>
  * @category   Php Framework, Design pattern builder for PHP.
@@ -157,7 +157,7 @@ class Mind extends PDO
     public function __destruct()
     {
         if($this->error_status){
-            $this->mindLoad(dirname($_SERVER['SCRIPT_FILENAME']).'/'.$this->error_file);
+            $this->mindLoad($this->error_file);
             exit();
         }
     }
@@ -2455,8 +2455,14 @@ class Mind extends PDO
                     break;
                     // kan grubu ve uyumu kuralı
                     case 'blood':
-                        if(!$this->is_blood($data[$column], $extra)){
-                            $this->errors[$column][$name] = $message[$column][$name];
+                        if(!empty($extra)){
+                            if(!$this->is_blood($data[$column], $extra)){
+                                $this->errors[$column][$name] = $message[$column][$name];
+                            }
+                        } else {
+                            if(!$this->is_blood($data[$column])){
+                                $this->errors[$column][$name] = $message[$column][$name];
+                            }
                         }
                     break;
                     // Koordinat kuralı
@@ -3246,13 +3252,15 @@ class Mind extends PDO
                         $mindFile = '';
                     }
 
-                    if (file_exists($mindFile . $fileExt)) {
+                    $mindFile = dirname($_SERVER['SCRIPT_FILENAME']).'/'.$mindFile . $fileExt;
+
+                    if (file_exists($mindFile)) {
 
                         /*
                          * PHPSTORM: In Settings search for 'unresolved include' which is under
                          * Editor > Inspections; PHP > General > Unresolved include and uncheck the box.
                          * */
-                        require_once($mindFile . $fileExt);
+                        require_once($mindFile);
 
                         if (class_exists($fileName)){
                             if (!empty($mindExplode['params'])){
